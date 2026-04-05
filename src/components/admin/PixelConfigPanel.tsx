@@ -71,8 +71,8 @@ function Toggle({
       role="switch"
       aria-checked={enabled}
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gold/50 focus:ring-offset-1 ${
-        enabled ? 'bg-gold' : 'bg-gray-300'
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:ring-offset-1 focus:ring-offset-dark ${
+        enabled ? 'bg-gold' : 'bg-dark-elevated'
       }`}
     >
       <span
@@ -125,7 +125,7 @@ function EventSelector({
             onChange(v)
           }
         }}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+        className="w-full px-3 py-2 border border-dark-border rounded-lg text-sm bg-dark-elevated text-text-primary focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all duration-200"
       >
         <option value="">-- Select event --</option>
         {META_EVENTS.map((evt) => (
@@ -144,7 +144,7 @@ function EventSelector({
             onChange(e.target.value)
           }}
           placeholder="Custom event name"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+          className="w-full px-3 py-2 border border-dark-border rounded-lg text-sm bg-dark-elevated text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all duration-200"
         />
       )}
     </div>
@@ -252,7 +252,7 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
     return (
       <div className="flex items-center gap-2 py-8">
         <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-navy-300">Loading pixel configuration...</span>
+        <span className="text-sm text-text-secondary">Loading pixel configuration...</span>
       </div>
     )
   }
@@ -261,16 +261,16 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-semibold text-navy mb-1">Meta Pixel Configuration</h3>
-        <p className="text-sm text-gray-500">
+        <h3 className="text-lg font-heading font-semibold text-text-primary mb-1">Meta Pixel Configuration</h3>
+        <p className="text-sm text-text-secondary">
           Configure the Meta Pixel and Conversions API integration for this client. Map CRM stages and lead quality changes to Meta events.
         </p>
       </div>
 
       {/* Pixel ID & CAPI Token */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-5">
+      <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border p-6 space-y-5">
         <div>
-          <label htmlFor="pixel_id" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="pixel_id" className="block text-sm font-medium text-text-secondary mb-1.5">
             Pixel ID
           </label>
           <input
@@ -279,12 +279,12 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
             value={pixelId}
             onChange={(e) => setPixelId(e.target.value)}
             placeholder="e.g. 123456789012345"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 border border-dark-border rounded-lg bg-dark-elevated text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all duration-200"
           />
         </div>
 
         <div>
-          <label htmlFor="capi_token" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="capi_token" className="block text-sm font-medium text-text-secondary mb-1.5">
             Conversions API Access Token
           </label>
           <div className="relative">
@@ -294,12 +294,12 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
               value={capiToken}
               onChange={(e) => setCapiToken(e.target.value)}
               placeholder="EAAxxxxxxx..."
-              className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+              className="w-full px-4 py-2.5 pr-12 border border-dark-border rounded-lg bg-dark-elevated text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all duration-200"
             />
             <button
               type="button"
               onClick={() => setShowToken(!showToken)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-all duration-200"
               aria-label={showToken ? 'Hide token' : 'Show token'}
             >
               {showToken ? (
@@ -318,10 +318,10 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
       </div>
 
       {/* Stage & Quality Event Mapper */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h4 className="text-sm font-semibold text-navy">Stage &amp; Quality Event Mapper</h4>
-          <p className="text-xs text-gray-500 mt-0.5">
+      <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border overflow-hidden">
+        <div className="px-6 py-4 border-b border-dark-border">
+          <h4 className="text-sm font-heading font-semibold text-text-primary">Stage &amp; Quality Event Mapper</h4>
+          <p className="text-xs text-text-secondary mt-0.5">
             Map CRM pipeline stages and lead quality changes to Meta conversion events.
           </p>
         </div>
@@ -329,23 +329,23 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+              <tr className="bg-dark-stripe border-b border-dark-border">
+                <th className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-6 py-3">
                   Trigger
                 </th>
-                <th className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                <th className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider px-6 py-3">
                   Meta Event
                 </th>
-                <th className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                <th className="text-center text-xs font-semibold text-text-muted uppercase tracking-wider px-6 py-3">
                   Enabled
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-dark-border">
               {STAGE_KEYS.map((key) => (
-                <tr key={key} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={key} className="hover:bg-dark-elevated transition-all duration-200">
                   <td className="px-6 py-4">
-                    <span className="text-sm font-medium text-navy">{TRIGGER_LABELS[key]}</span>
+                    <span className="text-sm font-medium text-text-primary">{TRIGGER_LABELS[key]}</span>
                   </td>
                   <td className="px-6 py-4 min-w-[220px]">
                     <EventSelector
@@ -368,13 +368,13 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
 
       {/* Feedback messages */}
       {saveError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-danger/10 border border-danger/30 text-danger px-4 py-3 rounded-lg text-sm">
           {saveError}
         </div>
       )}
 
       {saved && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-success/10 border border-success/30 text-success px-4 py-3 rounded-lg text-sm">
           Pixel configuration saved successfully.
         </div>
       )}
@@ -383,8 +383,8 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
         <div
           className={`px-4 py-3 rounded-lg text-sm border ${
             testResult.ok
-              ? 'bg-green-50 border-green-200 text-green-700'
-              : 'bg-red-50 border-red-200 text-red-700'
+              ? 'bg-success/10 border-success/30 text-success'
+              : 'bg-danger/10 border-danger/30 text-danger'
           }`}
         >
           {testResult.message}
@@ -397,7 +397,7 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2.5 bg-gold text-navy font-semibold rounded-lg hover:bg-gold-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+          className="px-6 py-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-gold-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
         >
           {saving ? 'Saving...' : saved ? 'Saved' : 'Save Configuration'}
         </button>
@@ -406,7 +406,7 @@ export default function PixelConfigPanel({ clientId }: { clientId: string }) {
           type="button"
           onClick={handleTest}
           disabled={testing || !pixelId || !capiToken}
-          className="px-6 py-2.5 border border-navy text-navy font-semibold rounded-lg hover:bg-navy hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+          className="px-6 py-2.5 border border-gold text-gold font-semibold rounded-lg hover:bg-gold hover:text-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
         >
           {testing ? 'Sending...' : 'Test Connection'}
         </button>

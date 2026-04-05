@@ -180,7 +180,7 @@ export default function ContactsPage() {
   const SortIcon = ({ column }: { column: SortKey }) => {
     if (sortKey !== column) {
       return (
-        <svg className="w-3 h-3 ml-1 text-gray-300 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-3 h-3 ml-1 text-text-muted inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
@@ -197,7 +197,7 @@ export default function ContactsPage() {
   };
 
   const selectClasses =
-    'rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold';
+    'rounded-lg border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200';
 
   const columns: { label: string; key: SortKey }[] = [
     { label: 'Name', key: 'name' },
@@ -214,10 +214,10 @@ export default function ContactsPage() {
     <div className="p-6 lg:p-8 max-w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-navy">Contacts</h1>
+        <h1 className="text-2xl font-bold font-heading text-text-primary">Contacts</h1>
         <button
           onClick={handleExport}
-          className="inline-flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-sm font-medium text-white hover:bg-navy-600 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-bold text-dark hover:bg-gold-hover transition-all duration-200"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -230,7 +230,7 @@ export default function ContactsPage() {
       <div className="mb-4">
         <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -242,7 +242,7 @@ export default function ContactsPage() {
             placeholder="Search by name, email, or phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 bg-white pl-10 pr-4 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold"
+            className="w-full rounded-lg border border-dark-border bg-dark-elevated pl-10 pr-4 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200"
           />
         </div>
       </div>
@@ -300,7 +300,7 @@ export default function ContactsPage() {
         </select>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-500">From</label>
+          <label className="text-sm text-text-secondary">From</label>
           <input
             type="date"
             value={dateFrom}
@@ -310,7 +310,7 @@ export default function ContactsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-500">To</label>
+          <label className="text-sm text-text-secondary">To</label>
           <input
             type="date"
             value={dateTo}
@@ -321,28 +321,28 @@ export default function ContactsPage() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-dark-border bg-dark-card shadow-gold-sm">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gold" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-dark-border border-t-gold" />
           </div>
         ) : sorted.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <div className="flex flex-col items-center justify-center py-20 text-text-muted">
             <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <p className="text-sm font-medium">No contacts found</p>
-            <p className="text-xs mt-1">Try adjusting your search or filters.</p>
+            <p className="text-sm font-medium text-text-secondary">No contacts found</p>
+            <p className="text-xs mt-1 text-text-muted">Try adjusting your search or filters.</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+              <tr className="border-b border-dark-border bg-dark-elevated">
                 {columns.map((col) => (
                   <th
                     key={col.key}
                     onClick={() => handleSort(col.key)}
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-navy select-none whitespace-nowrap"
+                    className="px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider cursor-pointer hover:text-gold select-none whitespace-nowrap transition-all duration-200"
                   >
                     {col.label}
                     <SortIcon column={col.key} />
@@ -350,8 +350,8 @@ export default function ContactsPage() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {sorted.map((contact) => {
+            <tbody className="divide-y divide-dark-border">
+              {sorted.map((contact, i) => {
                 const stageColor = PIPELINE_STAGE_COLORS[contact.pipeline_stage] as
                   | 'blue' | 'yellow' | 'purple' | 'teal' | 'green' | 'red' | 'gray';
 
@@ -359,21 +359,21 @@ export default function ContactsPage() {
                   <tr
                     key={contact.id}
                     onClick={() => setSelectedContact(contact)}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    className={`${i % 2 === 0 ? 'bg-dark-card' : 'bg-dark-stripe'} hover:bg-dark-elevated cursor-pointer transition-all duration-200`}
                   >
-                    <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+                    <td className="px-4 py-3 font-medium text-text-primary whitespace-nowrap">
                       {contact.first_name} {contact.last_name}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-text-secondary whitespace-nowrap">
                       {contact.phone || '---'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                    <td className="px-4 py-3 text-text-secondary whitespace-nowrap">
                       {contact.email || '---'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap max-w-[180px] truncate">
+                    <td className="px-4 py-3 text-text-secondary whitespace-nowrap max-w-[180px] truncate">
                       {contact.source_ad_name || '---'}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap max-w-[180px] truncate">
+                    <td className="px-4 py-3 text-text-secondary whitespace-nowrap max-w-[180px] truncate">
                       {contact.source_campaign_name || '---'}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -389,7 +389,7 @@ export default function ContactsPage() {
                         <Badge label="Bad" color="red" />
                       ) : null}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                    <td className="px-4 py-3 text-text-muted whitespace-nowrap">
                       {new Date(contact.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -406,7 +406,7 @@ export default function ContactsPage() {
 
       {/* Count */}
       {!loading && sorted.length > 0 && (
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-text-muted mt-3">
           Showing {sorted.length} of {contacts.length} contact{contacts.length !== 1 ? 's' : ''}
         </p>
       )}

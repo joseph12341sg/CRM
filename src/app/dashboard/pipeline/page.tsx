@@ -176,12 +176,12 @@ export default function PipelinePage() {
     return (
       <div className="p-8">
         <div className="flex items-center gap-3 mb-6">
-          <h1 className="text-2xl font-bold text-navy">Pipeline</h1>
+          <h1 className="text-2xl font-bold font-heading text-text-primary">Pipeline</h1>
         </div>
         <div className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent" />
-            <p className="text-sm text-gray-500">Loading contacts...</p>
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-dark-border border-t-gold" />
+            <p className="text-sm text-text-muted">Loading contacts...</p>
           </div>
         </div>
       </div>
@@ -192,7 +192,7 @@ export default function PipelinePage() {
     <div className="p-8 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 shrink-0">
-        <h1 className="text-2xl font-bold text-navy">Pipeline</h1>
+        <h1 className="text-2xl font-bold font-heading text-text-primary">Pipeline</h1>
         <Badge label={`${totalContacts} contact${totalContacts !== 1 ? 's' : ''}`} color="gray" />
       </div>
 
@@ -206,11 +206,11 @@ export default function PipelinePage() {
             return (
               <div
                 key={stage}
-                className="min-w-[280px] bg-gray-50 rounded-xl p-4 flex flex-col md:max-h-full"
+                className="min-w-[280px] bg-dark-card border border-dark-border rounded-xl p-4 flex flex-col md:max-h-full shadow-gold-sm"
               >
                 {/* Column Header */}
                 <div className="flex items-center justify-between mb-3 shrink-0">
-                  <h2 className="text-sm font-semibold text-navy">
+                  <h2 className="text-sm font-semibold text-gold">
                     {PIPELINE_STAGE_LABELS[stage]}
                   </h2>
                   <Badge label={String(contacts.length)} color={color} />
@@ -238,24 +238,24 @@ export default function PipelinePage() {
                               {...dragProvided.draggableProps}
                               {...dragProvided.dragHandleProps}
                               onClick={() => setSelectedContact(contact)}
-                              className={`bg-white rounded-lg p-3 shadow-sm border border-gray-200 hover:shadow-md transition cursor-pointer ${
-                                dragSnapshot.isDragging ? 'shadow-lg ring-2 ring-gold/40' : ''
+                              className={`bg-dark-elevated rounded-lg p-3 border border-dark-border hover:shadow-gold-md transition-all duration-200 cursor-pointer ${
+                                dragSnapshot.isDragging ? 'shadow-gold-md ring-2 ring-gold/40' : ''
                               }`}
                             >
-                              <p className="text-sm font-medium text-navy truncate">
+                              <p className="text-sm font-medium text-text-primary truncate">
                                 {contact.first_name} {contact.last_name}
                               </p>
                               {contact.phone && (
-                                <p className="text-xs text-gray-500 mt-1 truncate">
+                                <p className="text-xs text-text-secondary mt-1 truncate">
                                   {contact.phone}
                                 </p>
                               )}
                               {contact.source_ad_name && (
-                                <p className="text-xs text-gray-400 mt-1 truncate">
+                                <p className="text-xs text-text-muted mt-1 truncate">
                                   {contact.source_ad_name}
                                 </p>
                               )}
-                              <p className="text-xs text-gray-400 mt-1">
+                              <p className="text-xs text-text-muted mt-1">
                                 {formatShortDate(contact.created_at)}
                               </p>
                             </div>

@@ -91,11 +91,11 @@ function SortableTable<T extends Record<string, unknown>>({
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200">
+          <tr className="border-b border-dark-border bg-dark-elevated">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`px-4 py-3 text-left font-semibold text-navy cursor-pointer select-none hover:text-gold transition-colors ${col.className ?? ''}`}
+                className={`px-4 py-3 text-left font-semibold text-text-secondary cursor-pointer select-none hover:text-gold transition-all duration-200 ${col.className ?? ''}`}
                 onClick={() => onSort(col.key)}
               >
                 <span className="inline-flex items-center gap-1">
@@ -115,7 +115,7 @@ function SortableTable<T extends Record<string, unknown>>({
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-4 py-8 text-center text-gray-400"
+                className="px-4 py-8 text-center text-text-muted"
               >
                 No data available
               </td>
@@ -124,10 +124,10 @@ function SortableTable<T extends Record<string, unknown>>({
             sorted.map((row, i) => (
               <tr
                 key={i}
-                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                className={`${i % 2 === 0 ? 'bg-dark-card' : 'bg-dark-stripe'} hover:bg-dark-elevated transition-all duration-200 border-b border-dark-border`}
               >
                 {columns.map((col) => (
-                  <td key={col.key} className={`px-4 py-3 ${col.className ?? ''}`}>
+                  <td key={col.key} className={`px-4 py-3 text-text-primary ${col.className ?? ''}`}>
                     {col.accessor(row)}
                   </td>
                 ))}
@@ -238,43 +238,43 @@ function DownloadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-bold text-navy mb-4">Download Report</h3>
+      <div className="bg-dark-card border border-dark-border rounded-xl shadow-gold-md p-6 w-full max-w-md">
+        <h3 className="text-lg font-bold font-heading text-text-primary mb-4">Download Report</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               From
             </label>
             <input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none"
+              className="w-full border border-dark-border bg-dark-elevated rounded-lg px-3 py-2 text-sm text-text-primary focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               To
             </label>
             <input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none"
+              className="w-full border border-dark-border bg-dark-elevated rounded-lg px-3 py-2 text-sm text-text-primary focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200"
             />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-all duration-200"
           >
             Cancel
           </button>
           <button
             onClick={handleDownload}
             disabled={!from || !to || loading}
-            className="px-4 py-2 text-sm font-medium text-white bg-navy rounded-lg hover:bg-navy-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-bold text-dark bg-gold rounded-lg hover:bg-gold-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             {loading ? 'Generating...' : 'Download PDF'}
           </button>
@@ -409,8 +409,8 @@ export default function MetaDashboardPage() {
     return (
       <div className="p-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent" />
-          <p className="mt-4 text-sm text-gray-500">Loading Meta data...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-dark-border border-t-gold" />
+          <p className="mt-4 text-sm text-text-muted">Loading Meta data...</p>
         </div>
       </div>
     );
@@ -421,9 +421,9 @@ export default function MetaDashboardPage() {
       {/* ---- A) Header row ---- */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-navy">Meta Dashboard</h1>
+          <h1 className="text-2xl font-bold font-heading text-text-primary">Meta Dashboard</h1>
           {lastSynced && (
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-text-muted">
               Last synced:{' '}
               {new Date(lastSynced).toLocaleString('en-GB', {
                 dateStyle: 'medium',
@@ -437,11 +437,11 @@ export default function MetaDashboardPage() {
             type="date"
             value={selectedDate}
             onChange={handleDateChange}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none"
+            className="border border-dark-border bg-dark-elevated rounded-lg px-3 py-2 text-sm text-text-primary focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200"
           />
           <button
             onClick={() => setShowDownload(true)}
-            className="px-4 py-2 text-sm font-medium text-white bg-navy rounded-lg hover:bg-navy-400 transition-colors"
+            className="px-4 py-2 text-sm font-bold text-dark bg-gold rounded-lg hover:bg-gold-hover transition-all duration-200"
           >
             Download Report
           </button>
@@ -450,9 +450,9 @@ export default function MetaDashboardPage() {
 
       {/* ---- No data ---- */}
       {snapshots.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-          <p className="text-gray-400 text-lg">No data available</p>
-          <p className="text-gray-300 text-sm mt-2">
+        <div className="bg-dark-card border border-dark-border rounded-xl shadow-gold-sm p-12 text-center">
+          <p className="text-text-secondary text-lg">No data available</p>
+          <p className="text-text-muted text-sm mt-2">
             Select a different date or wait for the next sync.
           </p>
         </div>
@@ -469,9 +469,9 @@ export default function MetaDashboardPage() {
           </div>
 
           {/* ---- C) Campaign breakdown ---- */}
-          <section className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-navy">
+          <section className="bg-dark-card border border-dark-border rounded-xl shadow-gold-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-dark-border">
+              <h2 className="text-base font-semibold font-heading text-gold">
                 Campaign Breakdown
               </h2>
             </div>
@@ -485,9 +485,9 @@ export default function MetaDashboardPage() {
           </section>
 
           {/* ---- D) Ad Set breakdown ---- */}
-          <section className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-navy">
+          <section className="bg-dark-card border border-dark-border rounded-xl shadow-gold-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-dark-border">
+              <h2 className="text-base font-semibold font-heading text-gold">
                 Ad Set Breakdown
               </h2>
             </div>
@@ -501,9 +501,9 @@ export default function MetaDashboardPage() {
           </section>
 
           {/* ---- E) Ad-level breakdown ---- */}
-          <section className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-navy">
+          <section className="bg-dark-card border border-dark-border rounded-xl shadow-gold-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-dark-border">
+              <h2 className="text-base font-semibold font-heading text-gold">
                 Ad Breakdown
               </h2>
             </div>

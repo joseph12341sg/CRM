@@ -182,7 +182,7 @@ function KpiForm({ clientId }: { clientId: string }) {
     return (
       <div className="flex items-center gap-2 py-8">
         <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-navy-300">Loading KPIs...</span>
+        <span className="text-sm text-text-muted font-body">Loading KPIs...</span>
       </div>
     )
   }
@@ -191,7 +191,7 @@ function KpiForm({ clientId }: { clientId: string }) {
     <form onSubmit={handleSave} className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="max_cpl" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="max_cpl" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Max CPL ($)
           </label>
           <input
@@ -201,12 +201,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={maxCpl}
             onChange={(e) => setMaxCpl(e.target.value)}
             placeholder="e.g. 25.00"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div>
-          <label htmlFor="min_roas" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="min_roas" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Min ROAS
           </label>
           <input
@@ -216,12 +216,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={minRoas}
             onChange={(e) => setMinRoas(e.target.value)}
             placeholder="e.g. 3.5"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div>
-          <label htmlFor="min_leads" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="min_leads" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Min Leads / Day
           </label>
           <input
@@ -231,12 +231,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={minLeadsPerDay}
             onChange={(e) => setMinLeadsPerDay(e.target.value)}
             placeholder="e.g. 10"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div>
-          <label htmlFor="min_ctr" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="min_ctr" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Min CTR (%)
           </label>
           <input
@@ -246,12 +246,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={minCtr}
             onChange={(e) => setMinCtr(e.target.value)}
             placeholder="e.g. 1.5"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label htmlFor="monthly_budget" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="monthly_budget" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Monthly Budget ($)
           </label>
           <input
@@ -261,19 +261,19 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={monthlyBudget}
             onChange={(e) => setMonthlyBudget(e.target.value)}
             placeholder="e.g. 5000.00"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded-lg text-sm font-body">
           {error}
         </div>
       )}
 
       {saved && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg text-sm font-body">
           KPIs saved successfully.
         </div>
       )}
@@ -281,7 +281,7 @@ function KpiForm({ clientId }: { clientId: string }) {
       <button
         type="submit"
         disabled={saving}
-        className="px-6 py-2.5 bg-gold text-navy font-semibold rounded-lg hover:bg-gold-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+        className="px-6 py-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-gold-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
       >
         {saving ? 'Saving...' : kpis ? 'Update KPIs' : 'Set KPIs'}
       </button>
@@ -293,13 +293,13 @@ function KpiForm({ clientId }: { clientId: string }) {
 function TabPlaceholder({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 rounded-full bg-navy-50 flex items-center justify-center mb-4">
-        <svg className="w-8 h-8 text-navy-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <div className="w-16 h-16 rounded-full bg-dark-elevated flex items-center justify-center mb-4">
+        <svg className="w-8 h-8 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold text-navy mb-1">{label}</h3>
-      <p className="text-sm text-navy-300 max-w-sm">
+      <h3 className="text-lg font-semibold text-text-primary mb-1 font-heading">{label}</h3>
+      <p className="text-sm text-text-secondary max-w-sm font-body">
         This section is coming soon. The {label.toLowerCase()} module will be built out in a future update.
       </p>
     </div>
@@ -357,10 +357,10 @@ export default function ClientAdminPage() {
   /* ---------- loading state ---------- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-dark">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-          <p className="text-navy-300 text-sm">Loading client...</p>
+          <p className="text-text-muted text-sm font-body">Loading client...</p>
         </div>
       </div>
     )
@@ -369,25 +369,25 @@ export default function ClientAdminPage() {
   /* ---------- error state ---------- */
   if (error || !client) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-md text-center">
-          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="flex items-center justify-center h-screen bg-dark">
+        <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border p-8 max-w-md text-center">
+          <div className="w-12 h-12 rounded-full bg-danger/20 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-navy mb-2">Failed to Load Client</h2>
-          <p className="text-sm text-gray-500 mb-6">{error || 'Client not found.'}</p>
+          <h2 className="text-lg font-semibold text-text-primary mb-2 font-heading">Failed to Load Client</h2>
+          <p className="text-sm text-text-secondary mb-6 font-body">{error || 'Client not found.'}</p>
           <div className="flex justify-center gap-3">
             <button
               onClick={fetchClient}
-              className="px-5 py-2.5 bg-gold text-navy font-medium rounded-lg hover:bg-gold-300 transition-colors text-sm"
+              className="px-5 py-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-gold-hover transition-all duration-200 text-sm"
             >
               Retry
             </button>
             <Link
               href="/admin"
-              className="px-5 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              className="px-5 py-2.5 border border-dark-border text-text-secondary font-medium rounded-lg hover:bg-dark-elevated transition-all duration-200 text-sm"
             >
               Back to Command Centre
             </Link>
@@ -404,11 +404,11 @@ export default function ClientAdminPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-navy mb-1">Client KPIs</h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <h3 className="text-lg font-semibold text-text-primary mb-1 font-heading">Client KPIs</h3>
+              <p className="text-sm text-text-secondary mb-6 font-body">
                 Set performance thresholds for {client!.name}. These are used to calculate health status and trigger alerts.
               </p>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border p-6">
                 <KpiForm clientId={clientId} />
               </div>
             </div>
@@ -433,19 +433,19 @@ export default function ClientAdminPage() {
 
   /* ---------- main render ---------- */
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-dark">
       {/* Admin banner */}
-      <div className="bg-navy text-white px-6 py-3 flex items-center justify-between flex-shrink-0">
+      <div className="bg-dark-nav text-text-primary px-6 py-3 flex items-center justify-between flex-shrink-0 border-b border-dark-border">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium font-body">
             Viewing as admin &mdash;{' '}
             <span className="text-gold font-semibold">{client.name}</span>
           </span>
         </div>
         <Link
           href="/admin"
-          className="text-sm text-gold hover:text-gold-200 transition-colors font-medium"
+          className="text-sm text-gold hover:text-gold-hover transition-all duration-200 font-medium"
         >
           Back to Command Centre
         </Link>
@@ -453,16 +453,16 @@ export default function ClientAdminPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar tabs */}
-        <aside className="w-56 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+        <aside className="w-56 bg-dark-card border-r border-dark-border flex-shrink-0 overflow-y-auto">
           <nav className="py-4">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors text-left ${
+                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-medium transition-all duration-200 text-left ${
                   activeTab === tab.key
                     ? 'bg-gold/10 text-gold border-r-2 border-gold'
-                    : 'text-navy-300 hover:bg-gray-50 hover:text-navy'
+                    : 'text-text-secondary hover:bg-dark-elevated hover:text-text-primary'
                 }`}
               >
                 {tab.icon}
@@ -473,7 +473,7 @@ export default function ClientAdminPage() {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-8 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-8 bg-dark">
           {renderTabContent()}
         </main>
       </div>

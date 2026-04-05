@@ -245,11 +245,11 @@ export default function EditAdPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-navy">Edit Ad</h1>
+        <h1 className="text-2xl font-heading font-bold text-text-primary">Edit Ad</h1>
         <button
           onClick={handleArchive}
           disabled={archiving || status === 'archived'}
-          className="rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-md border border-danger bg-danger/10 px-4 py-2 text-sm font-medium text-danger hover:bg-danger/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {archiving ? 'Archiving...' : status === 'archived' ? 'Archived' : 'Archive Ad'}
         </button>
@@ -258,21 +258,21 @@ export default function EditAdPage() {
       <div className="space-y-6">
         {/* Ad name */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
-            Ad Name <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Ad Name <span className="text-danger">*</span>
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter ad name"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           />
         </div>
 
         {/* Template selector */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Template
           </label>
           <select
@@ -281,7 +281,7 @@ export default function EditAdPage() {
               setSelectedTemplateId(e.target.value);
               setPlaceholderValues({});
             }}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary focus:border-gold focus:ring-gold transition-all duration-200"
           >
             <option value="">Select a template...</option>
             {templates.map((t) => (
@@ -294,11 +294,11 @@ export default function EditAdPage() {
 
         {/* Placeholder fields */}
         {selectedTemplate && placeholders.length > 0 && (
-          <div className="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-3">
-            <p className="text-sm font-medium text-navy">Template Variables</p>
+          <div className="rounded-md border border-dark-border bg-dark-card p-4 space-y-3">
+            <p className="text-sm font-medium text-text-primary">Template Variables</p>
             {placeholders.map((key) => (
               <div key={key}>
-                <label className="block text-xs font-medium text-gray-600 mb-1 capitalize">
+                <label className="block text-xs font-medium text-text-secondary mb-1 capitalize">
                   {key.replace(/_/g, ' ')}
                 </label>
                 <input
@@ -311,13 +311,13 @@ export default function EditAdPage() {
                     }))
                   }
                   placeholder={`Enter ${key.replace(/_/g, ' ')}`}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+                  className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
                 />
               </div>
             ))}
 
             {/* Template preview */}
-            <div className="mt-2 rounded bg-white p-3 text-sm text-gray-700 whitespace-pre-wrap border border-gray-200">
+            <div className="mt-2 rounded bg-dark-elevated p-3 text-sm text-text-secondary whitespace-pre-wrap border border-dark-border">
               {buildFilledTemplate()}
             </div>
           </div>
@@ -328,10 +328,10 @@ export default function EditAdPage() {
           <button
             onClick={handleGenerate}
             disabled={generating || !selectedTemplate}
-            className="rounded-md bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="rounded-md bg-gold px-4 py-2 text-sm font-bold text-dark hover:bg-gold-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {generating && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-dark border-t-transparent" />
             )}
             {generating ? 'Generating...' : 'Generate Copy with AI'}
           </button>
@@ -339,7 +339,7 @@ export default function EditAdPage() {
 
         {/* Ad copy textarea */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Ad Copy
           </label>
           <textarea
@@ -347,13 +347,13 @@ export default function EditAdPage() {
             onChange={(e) => setAdCopy(e.target.value)}
             rows={8}
             placeholder="Your ad copy will appear here after generation, or type it manually"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           />
         </div>
 
         {/* Image URL */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Image URL
           </label>
           <input
@@ -361,14 +361,14 @@ export default function EditAdPage() {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://example.com/image.png"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           />
         </div>
 
         {/* Meta IDs */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Campaign ID
             </label>
             <input
@@ -376,11 +376,11 @@ export default function EditAdPage() {
               value={campaignId}
               onChange={(e) => setCampaignId(e.target.value)}
               placeholder="Meta Campaign ID"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+              className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Ad Set ID
             </label>
             <input
@@ -388,11 +388,11 @@ export default function EditAdPage() {
               value={adSetId}
               onChange={(e) => setAdSetId(e.target.value)}
               placeholder="Meta Ad Set ID"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+              className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Ad ID
             </label>
             <input
@@ -400,20 +400,20 @@ export default function EditAdPage() {
               value={adId}
               onChange={(e) => setAdId(e.target.value)}
               placeholder="Meta Ad ID"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+              className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
             />
           </div>
         </div>
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Status
           </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary focus:border-gold focus:ring-gold transition-all duration-200"
           >
             <option value="draft">Draft</option>
             <option value="active">Active</option>
@@ -423,33 +423,33 @@ export default function EditAdPage() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+        <div className="flex items-center gap-3 pt-4 border-t border-dark-border">
           <button
             onClick={handleSave}
             disabled={saving || !name.trim()}
-            className="rounded-md bg-gold px-6 py-2 text-sm font-semibold text-navy hover:bg-gold-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="rounded-md bg-gold px-6 py-2 text-sm font-bold text-dark hover:bg-gold-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {saving && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-navy border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-dark border-t-transparent" />
             )}
             {saving ? 'Saving...' : 'Save Ad'}
           </button>
           <button
             onClick={() => router.push('/dashboard/ads')}
-            className="rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="rounded-md border border-gold px-6 py-2 text-sm font-medium text-gold hover:bg-gold hover:text-dark transition-all duration-200"
           >
             Cancel
           </button>
-          <span className="ml-auto text-xs text-gray-400">
+          <span className="ml-auto text-xs text-text-muted">
             Version {versionNumber}
           </span>
         </div>
 
         {/* Version History */}
-        <div className="border-t border-gray-200 pt-6">
+        <div className="border-t border-dark-border pt-6">
           <button
             onClick={() => setVersionsOpen(!versionsOpen)}
-            className="flex items-center gap-2 text-sm font-medium text-navy hover:text-navy-400 transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-gold hover:text-gold-muted transition-all duration-200"
           >
             <svg
               className={`h-4 w-4 transition-transform ${versionsOpen ? 'rotate-90' : ''}`}
@@ -466,18 +466,18 @@ export default function EditAdPage() {
           {versionsOpen && (
             <div className="mt-4 space-y-3">
               {versions.length === 0 ? (
-                <p className="text-sm text-gray-500">No versions recorded yet.</p>
+                <p className="text-sm text-text-muted">No versions recorded yet.</p>
               ) : (
                 versions.map((v) => (
                   <div
                     key={v.id}
-                    className="flex items-center justify-between rounded-md border border-gray-200 bg-white px-4 py-3"
+                    className="flex items-center justify-between rounded-md border border-dark-border bg-dark-card px-4 py-3"
                   >
                     <div>
-                      <p className="text-sm font-medium text-navy">
+                      <p className="text-sm font-medium text-text-primary">
                         Version {v.version_number}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-text-muted">
                         {v.saved_at
                           ? new Date(v.saved_at).toLocaleString()
                           : 'Unknown date'}
@@ -485,7 +485,7 @@ export default function EditAdPage() {
                     </div>
                     <button
                       onClick={() => setPreviewVersion(v)}
-                      className="rounded-md border border-navy px-3 py-1 text-xs font-medium text-navy hover:bg-navy-50 transition-colors"
+                      className="rounded-md border border-gold px-3 py-1 text-xs font-medium text-gold hover:bg-gold hover:text-dark transition-all duration-200"
                     >
                       Preview
                     </button>
@@ -499,31 +499,31 @@ export default function EditAdPage() {
 
       {/* Version Preview Modal */}
       {previewVersion && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-xl rounded-lg bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-xl rounded-lg bg-dark-card border border-dark-border border-t-2 border-t-gold p-6 shadow-gold-md">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-navy">
+              <h2 className="text-lg font-heading font-bold text-text-primary">
                 Version {previewVersion.version_number}
               </h2>
               <button
                 onClick={() => setPreviewVersion(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-text-muted hover:text-text-primary transition-all duration-200"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="rounded-md border border-gray-200 bg-gray-50 p-4 max-h-80 overflow-y-auto">
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">
+            <div className="rounded-md border border-dark-border bg-dark-elevated p-4 max-h-80 overflow-y-auto">
+              <p className="text-sm text-text-secondary whitespace-pre-wrap">
                 {previewVersion.ad_copy || 'No copy for this version.'}
               </p>
             </div>
             {previewVersion.prompt_used && (
               <div className="mt-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">Prompt used:</p>
-                <div className="rounded-md border border-gray-200 bg-gray-50 p-3 max-h-32 overflow-y-auto">
-                  <p className="text-xs text-gray-600 whitespace-pre-wrap">
+                <p className="text-xs font-medium text-text-muted mb-1">Prompt used:</p>
+                <div className="rounded-md border border-dark-border bg-dark-elevated p-3 max-h-32 overflow-y-auto">
+                  <p className="text-xs text-text-secondary whitespace-pre-wrap">
                     {previewVersion.prompt_used}
                   </p>
                 </div>
@@ -532,7 +532,7 @@ export default function EditAdPage() {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => setPreviewVersion(null)}
-                className="rounded-md bg-navy px-4 py-2 text-sm font-medium text-white hover:bg-navy-400 transition-colors"
+                className="rounded-md bg-gold px-4 py-2 text-sm font-bold text-dark hover:bg-gold-hover transition-all duration-200"
               >
                 Close
               </button>
