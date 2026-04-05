@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -8,6 +9,24 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+
+  const [clients, setClients] = useState<{ id: string; name: string; health_status: string }[]>([]);
+
+  // Check if we're in a per-client view
+  const clientMatch = pathname.match(/\/admin\/clients\/([^/]+)/);
+  const isClientView = !!clientMatch;
+
+  useEffect(() => {
+    if (!isClientView) return;
+    async function fetchClients() {
+      try {
+        const res = await fetch('/api/admin/clients-list');
+        const json = await res.json();
+        if (json.clients) setClients(json.clients);
+      } catch { /* ignore */ }
+    }
+    fetchClients();
+  }, [isClientView]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -64,6 +83,35 @@ export default function AdminSidebar() {
 
         <div className="my-4 border-t border-dark-border" />
       </nav>
+
+      {/* Client Switcher (shown when inside a client view) */}
+      {isClientView && clients.length > 0 && (
+        <div className="px-4 pb-4">
+          <div className="border-t border-dark-border pt-4 mb-2">
+            <p className="px-3 text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Switch Client</p>
+          </div>
+          <div className="space-y-0.5 max-h-[200px] overflow-y-auto">
+            {clients.map((c) => {
+              const healthDot = c.health_status === 'critical' ? 'bg-danger' : c.health_status === 'warning' ? 'bg-warning' : 'bg-success';
+              const isCurrentClient = clientMatch?.[1] === c.id;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => router.push(`/admin/clients/${c.id}`)}
+                  className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                    isCurrentClient
+                      ? 'bg-gold/10 text-gold font-medium'
+                      : 'text-text-secondary hover:bg-dark-elevated hover:text-text-primary'
+                  }`}
+                >
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${healthDot}`} />
+                  <span className="truncate">{c.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Logout */}
       <div className="px-4 pb-6">

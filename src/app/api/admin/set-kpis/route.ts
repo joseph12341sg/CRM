@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { client_id, max_cpl, min_roas, min_leads_per_day, min_ctr, monthly_budget } = body
+    const { client_id, max_cpl, min_roas, min_leads_per_day, min_ctr, monthly_budget, min_cac } = body
 
     if (!client_id) {
       return NextResponse.json({ error: 'client_id is required' }, { status: 400 })
@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
           min_leads_per_day: min_leads_per_day ?? null,
           min_ctr: min_ctr ?? null,
           monthly_budget: monthly_budget ?? null,
+          min_cac: min_cac ?? null,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'client_id' }

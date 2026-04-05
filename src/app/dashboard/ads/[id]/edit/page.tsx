@@ -44,6 +44,12 @@ export default function EditAdPage() {
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [adFatigue, setAdFatigue] = useState<{
+    cplChange: number;
+    ctrChange: number;
+    frequency: number;
+    updatedAt: string;
+  } | null>(null);
 
   // Version history
   const [versions, setVersions] = useState<AdVersion[]>([]);
@@ -88,6 +94,7 @@ export default function EditAdPage() {
       setAdId(ad.ad_id || '');
       setStatus(ad.status || 'draft');
       setVersionNumber(ad.version_number || 1);
+      setAdFatigue(ad.ad_fatigue || null);
 
       // Fetch versions
       const { data: versionData } = await supabase
@@ -421,6 +428,33 @@ export default function EditAdPage() {
             <option value="archived">Archived</option>
           </select>
         </div>
+
+        {/* Ad Fatigue Metrics */}
+        {adFatigue && (
+          <div className="rounded-lg border border-dark-border bg-dark-elevated p-4 space-y-2">
+            <h3 className="text-sm font-semibold text-gold">Fatigue Metrics</h3>
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <p className="text-text-muted text-xs">WoW CPL Change</p>
+                <p className={`font-medium ${adFatigue.cplChange > 20 ? 'text-danger' : adFatigue.cplChange > 0 ? 'text-warning' : 'text-success'}`}>
+                  {adFatigue.cplChange > 0 ? '+' : ''}{adFatigue.cplChange.toFixed(1)}%
+                </p>
+              </div>
+              <div>
+                <p className="text-text-muted text-xs">WoW CTR Change</p>
+                <p className={`font-medium ${adFatigue.ctrChange < -20 ? 'text-danger' : adFatigue.ctrChange < 0 ? 'text-warning' : 'text-success'}`}>
+                  {adFatigue.ctrChange > 0 ? '+' : ''}{adFatigue.ctrChange.toFixed(1)}%
+                </p>
+              </div>
+              <div>
+                <p className="text-text-muted text-xs">Frequency</p>
+                <p className={`font-medium ${adFatigue.frequency > 4 ? 'text-danger' : 'text-text-primary'}`}>
+                  {adFatigue.frequency.toFixed(1)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-4 border-t border-dark-border">

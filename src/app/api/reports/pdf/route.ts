@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
   // ── 2. Fetch all data in parallel ──────────────────────────────────
 
-  const [snapshotsRes, contactsRes, pipelineEventsRes, kpisRes, healthRes, clientRes] =
+  const [snapshotsRes, contactsRes, pipelineEventsRes, kpisRes, healthRes, clientRes, wonCountRes] =
     await Promise.all([
       adminClient
         .from('meta_snapshots')
@@ -156,6 +156,13 @@ export async function POST(request: NextRequest) {
         .select('name')
         .eq('id', clientId)
         .single(),
+      adminClient
+        .from('contacts')
+        .select('id', { count: 'exact', head: true })
+        .eq('client_id', clientId)
+        .eq('pipeline_stage', 'won')
+        .gte('updated_at', `${from}T00:00:00`)
+        .lte('updated_at', `${to}T23:59:59.999Z`),
     ])
 
   const snapshots = snapshotsRes.data ?? []
@@ -163,6 +170,7 @@ export async function POST(request: NextRequest) {
   const kpis = kpisRes.data
   const health = healthRes.data
   const clientName = clientRes.data?.name || 'Client'
+  const wonCount = wonCountRes.count ?? 0
 
   // ── 3. Calculate summary metrics ───────────────────────────────────
 
@@ -182,6 +190,7 @@ export async function POST(request: NextRequest) {
   const blendedCTR =
     totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0
   const blendedCPL = totalLeads > 0 ? totalSpend / totalLeads : 0
+  const blendedCAC = wonCount > 0 ? totalSpend / wonCount : 0
 
   const roasValues = snapshots
     .map((r) => Number(r.roas) || 0)
@@ -423,6 +432,7 @@ export async function POST(request: NextRequest) {
     ${metricCard(fmtPct(blendedCTR), 'Click-Through Rate')}
     ${metricCard(totalLeads.toLocaleString(), 'Total Leads')}
     ${metricCard(totalClicks.toLocaleString(), 'Total Clicks')}
+    ${metricCard(fmtGBP(blendedCAC), 'Customer Acquisition Cost')}
   </div>
   ${totalSpend === 0 ? '<p style="color:#9CA3AF;font-style:italic;text-align:center;padding:16px 0;">No ad spend data recorded for this period.</p>' : ''}
 </div>
@@ -461,6 +471,7 @@ export async function POST(request: NextRequest) {
       ${kpiRow('CTR', fmtPct(blendedCTR), kpis?.min_ctr ?? null, `Min ${Number(kpis?.min_ctr).toFixed(2)}%`, kpis?.min_ctr != null ? blendedCTR < Number(kpis.min_ctr) : null)}
       ${kpiRow('Daily Leads', totalLeads.toString(), kpis?.min_leads_per_day ?? null, `Min ${kpis?.min_leads_per_day}/day`, kpis?.min_leads_per_day != null ? totalLeads < Number(kpis.min_leads_per_day) : null)}
       ${kpiRow('Monthly Budget', fmtGBP(totalSpend), kpis?.monthly_budget ?? null, fmtGBP(Number(kpis?.monthly_budget)), kpis?.monthly_budget != null ? totalSpend > Number(kpis.monthly_budget) : null)}
+      ${kpiRow('CAC', fmtGBP(blendedCAC), kpis?.min_cac ?? null, `Max ${fmtGBP(Number(kpis?.min_cac))}`, kpis?.min_cac != null ? blendedCAC > Number(kpis.min_cac) : null)}
     </tbody>
   </table>
 </div>

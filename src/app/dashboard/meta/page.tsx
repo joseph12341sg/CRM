@@ -294,6 +294,7 @@ export default function MetaDashboardPage() {
   const [selectedDate, setSelectedDate] = useState('');
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [showDownload, setShowDownload] = useState(false);
+  const [wonContacts, setWonContacts] = useState<{id: string, source_campaign_id: string|null, source_ad_set_id: string|null, source_ad_id: string|null}[]>([]);
 
   // Sort state per table section
   const [campaignSort, setCampaignSort] = useState<{ col: string; dir: SortDirection }>({ col: 'spend', dir: 'desc' });
@@ -321,11 +322,23 @@ export default function MetaDashboardPage() {
             json.data[0].created_at ?? '',
           );
           setLastSynced(latest || null);
+
+          // Fetch won contacts for CAC calculation
+          const targetDate = date || snapshotDate;
+          const { data: wonData } = await supabase
+            .from('contacts')
+            .select('id, source_campaign_id, source_ad_set_id, source_ad_id')
+            .eq('pipeline_stage', 'won')
+            .gte('updated_at', `${targetDate}T00:00:00`)
+            .lte('updated_at', `${targetDate}T23:59:59.999Z`);
+          setWonContacts(wonData ?? []);
         } else {
           setLastSynced(null);
+          setWonContacts([]);
         }
       } catch {
         setSnapshots([]);
+        setWonContacts([]);
       } finally {
         setLoading(false);
       }
@@ -363,6 +376,8 @@ export default function MetaDashboardPage() {
   const totalLeads = snapshots.reduce((s, r) => s + (r.leads || 0), 0);
   const blendedCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
   const blendedCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
+  const wonCount = wonContacts.length;
+  const blendedCAC = wonCount > 0 ? totalSpend / wonCount : 0;
 
   /* ---- Aggregated data ---- */
   const campaignRows = useMemo(() => aggregate(snapshots, 'campaign_id'), [snapshots]);
@@ -376,6 +391,14 @@ export default function MetaDashboardPage() {
     { key: 'clicks', label: 'Clicks', accessor: (r) => fmtNum(r.clicks), sortValue: (r) => r.clicks },
     { key: 'ctr', label: 'CTR', accessor: (r) => fmtPct(r.ctr), sortValue: (r) => r.ctr },
     { key: 'cpl', label: 'CPL', accessor: (r) => fmtCurrency(r.cpl), sortValue: (r) => r.cpl },
+    { key: 'cac', label: 'CAC', accessor: (r) => {
+        const won = wonContacts.filter(w => w.source_campaign_id === (r as Record<string, unknown>).campaign_id).length;
+        return won > 0 ? fmtCurrency(r.spend / won) : '\u2014';
+      }, sortValue: (r) => {
+        const won = wonContacts.filter(w => w.source_campaign_id === (r as Record<string, unknown>).campaign_id).length;
+        return won > 0 ? r.spend / won : 0;
+      }
+    },
     { key: 'roas', label: 'ROAS', accessor: (r) => r.roas.toFixed(2), sortValue: (r) => r.roas },
     { key: 'leads', label: 'Leads', accessor: (r) => fmtNum(r.leads), sortValue: (r) => r.leads },
   ];
@@ -388,6 +411,14 @@ export default function MetaDashboardPage() {
     { key: 'clicks', label: 'Clicks', accessor: (r) => fmtNum(r.clicks), sortValue: (r) => r.clicks },
     { key: 'ctr', label: 'CTR', accessor: (r) => fmtPct(r.ctr), sortValue: (r) => r.ctr },
     { key: 'cpl', label: 'CPL', accessor: (r) => fmtCurrency(r.cpl), sortValue: (r) => r.cpl },
+    { key: 'cac', label: 'CAC', accessor: (r) => {
+        const won = wonContacts.filter(w => w.source_ad_set_id === (r as Record<string, unknown>).ad_set_id).length;
+        return won > 0 ? fmtCurrency(r.spend / won) : '\u2014';
+      }, sortValue: (r) => {
+        const won = wonContacts.filter(w => w.source_ad_set_id === (r as Record<string, unknown>).ad_set_id).length;
+        return won > 0 ? r.spend / won : 0;
+      }
+    },
     { key: 'roas', label: 'ROAS', accessor: (r) => r.roas.toFixed(2), sortValue: (r) => r.roas },
     { key: 'leads', label: 'Leads', accessor: (r) => fmtNum(r.leads), sortValue: (r) => r.leads },
   ];
@@ -400,6 +431,14 @@ export default function MetaDashboardPage() {
     { key: 'clicks', label: 'Clicks', accessor: (r) => fmtNum(r.clicks), sortValue: (r) => r.clicks },
     { key: 'ctr', label: 'CTR', accessor: (r) => fmtPct(r.ctr), sortValue: (r) => r.ctr },
     { key: 'cpl', label: 'CPL', accessor: (r) => fmtCurrency(r.cpl), sortValue: (r) => r.cpl },
+    { key: 'cac', label: 'CAC', accessor: (r) => {
+        const won = wonContacts.filter(w => w.source_ad_id === r.ad_id).length;
+        return won > 0 ? fmtCurrency(r.spend / won) : '\u2014';
+      }, sortValue: (r) => {
+        const won = wonContacts.filter(w => w.source_ad_id === r.ad_id).length;
+        return won > 0 ? r.spend / won : 0;
+      }
+    },
     { key: 'roas', label: 'ROAS', accessor: (r) => r.roas.toFixed(2), sortValue: (r) => r.roas },
     { key: 'leads', label: 'Leads', accessor: (r) => fmtNum(r.leads), sortValue: (r) => r.leads },
   ];
@@ -459,13 +498,14 @@ export default function MetaDashboardPage() {
       ) : (
         <>
           {/* ---- B) Summary row ---- */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
             <StatCard label="Total Spend" value={fmtCurrency(totalSpend)} accent />
             <StatCard label="Total Impressions" value={fmtNum(totalImpressions)} />
             <StatCard label="Total Clicks" value={fmtNum(totalClicks)} />
             <StatCard label="Blended CTR" value={fmtPct(blendedCTR)} accent />
             <StatCard label="Blended CPL" value={fmtCurrency(blendedCPL)} accent />
             <StatCard label="Total Leads" value={fmtNum(totalLeads)} accent />
+            <StatCard label="Blended CAC" value={fmtCurrency(blendedCAC)} accent />
           </div>
 
           {/* ---- C) Campaign breakdown ---- */}

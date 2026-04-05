@@ -21,6 +21,8 @@ export default function CreateClientPage() {
   const [password, setPassword] = useState('')
   const [metaAdAccountId, setMetaAdAccountId] = useState('')
   const [metaAccessToken, setMetaAccessToken] = useState('')
+  const [leadSmsNumber, setLeadSmsNumber] = useState('')
+  const [leadSmsEnabled, setLeadSmsEnabled] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -50,6 +52,8 @@ export default function CreateClientPage() {
           password,
           meta_ad_account_id: metaAdAccountId || undefined,
           meta_access_token: metaAccessToken || undefined,
+          lead_sms_number: leadSmsNumber || undefined,
+          lead_sms_enabled: leadSmsEnabled,
         }),
       })
 
@@ -264,6 +268,42 @@ export default function CreateClientPage() {
               placeholder="EAAx..."
               className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
             />
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-dark-border pt-2">
+            <p className="text-sm font-medium text-text-muted font-body">Lead Notifications (Optional)</p>
+          </div>
+
+          {/* SMS Number */}
+          <div>
+            <label htmlFor="lead_sms_number" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
+              SMS Notification Number
+            </label>
+            <input
+              id="lead_sms_number"
+              type="tel"
+              value={leadSmsNumber}
+              onChange={(e) => setLeadSmsNumber(e.target.value)}
+              placeholder="+44 7700 900000"
+              className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
+            />
+          </div>
+
+          {/* SMS Enabled Toggle */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setLeadSmsEnabled(!leadSmsEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                leadSmsEnabled ? 'bg-gold' : 'bg-dark-elevated'
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                leadSmsEnabled ? 'translate-x-6' : 'translate-x-1'
+              }`} />
+            </button>
+            <span className="text-sm text-text-secondary font-body">Enable SMS notifications for new leads</span>
           </div>
 
           {/* Error */}

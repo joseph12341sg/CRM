@@ -17,6 +17,7 @@ export type Contact = {
   source_campaign_name: string | null;
   pipeline_stage: string;
   lead_quality: string | null;
+  lead_score: number | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -185,6 +186,20 @@ export default function ContactDrawer({ contact, onClose, onUpdate }: ContactDra
             />
           </section>
 
+          {/* Lead Score */}
+          {contact.lead_score != null && (
+            <section>
+              <h3 className="text-xs font-semibold text-gold uppercase tracking-wider mb-3">Lead Score</h3>
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${
+                contact.lead_score >= 70 ? 'bg-success/20 text-success' :
+                contact.lead_score >= 40 ? 'bg-warning/20 text-warning' :
+                'bg-dark-elevated text-text-muted'
+              }`}>
+                {contact.lead_score}/100
+              </span>
+            </section>
+          )}
+
           {/* Source Tracking */}
           <section>
             <h3 className="text-xs font-semibold text-gold uppercase tracking-wider mb-3">Source Tracking</h3>
@@ -289,6 +304,30 @@ export default function ContactDrawer({ contact, onClose, onUpdate }: ContactDra
                 year: 'numeric',
               })}
             </p>
+          </section>
+
+          {/* Keyboard Shortcuts */}
+          <section>
+            <h3 className="text-xs font-semibold text-gold uppercase tracking-wider mb-3">Keyboard Shortcuts</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                { key: 'G', label: 'Mark as good' },
+                { key: 'B', label: 'Mark as bad' },
+                { key: '1', label: 'New Lead' },
+                { key: '2', label: 'Contacted' },
+                { key: '3', label: 'Qualified' },
+                { key: '4', label: 'Booked' },
+                { key: '5', label: 'Won' },
+                { key: '6', label: 'Lost' },
+                { key: 'N', label: 'Focus notes' },
+                { key: 'Esc', label: 'Close' },
+              ].map(s => (
+                <div key={s.key} className="flex items-center gap-2">
+                  <kbd className="px-1.5 py-0.5 bg-dark-elevated border border-dark-border rounded text-text-muted font-mono">{s.key}</kbd>
+                  <span className="text-text-secondary">{s.label}</span>
+                </div>
+              ))}
+            </div>
           </section>
         </div>
       </div>

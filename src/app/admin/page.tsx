@@ -136,6 +136,12 @@ export default function AdminCommandCentre() {
   const [latestSnapshots, setLatestSnapshots] = useState<Record<string, MetaSnapshot>>({});
   const [pipelineCounts, setPipelineCounts] = useState<Record<string, Record<string, number>>>({});
 
+  // checklist
+  const [checklistMap, setChecklistMap] = useState<Record<string, Record<string, boolean>>>({});
+
+  // sync state per client
+  const [syncingClients, setSyncingClients] = useState<Record<string, 'syncing' | 'success' | 'error'>>({});
+
   // alerts
   const [alerts, setAlerts] = useState<
     { clientName: string; message: string; calculatedAt: string }[]
@@ -244,6 +250,25 @@ export default function AdminCommandCentre() {
       .limit(20);
     setRecentContacts((recentRows as unknown as Contact[]) ?? []);
 
+    // 8. checklist data
+    const { data: checklistRows } = await supabase
+      .from('client_checklist')
+      .select('client_id, business_manager_connected, connected_to_ad_manager, ad_created, ads_scheduled, api_set_up, pixel_set_up, lead_notification_set_up');
+
+    const clMap: Record<string, Record<string, boolean>> = {};
+    (checklistRows ?? []).forEach((row: any) => {
+      clMap[row.client_id] = {
+        business_manager_connected: row.business_manager_connected,
+        connected_to_ad_manager: row.connected_to_ad_manager,
+        ad_created: row.ad_created,
+        ads_scheduled: row.ads_scheduled,
+        api_set_up: row.api_set_up,
+        pixel_set_up: row.pixel_set_up,
+        lead_notification_set_up: row.lead_notification_set_up,
+      };
+    });
+    setChecklistMap(clMap);
+
     // default selected client
     if (safeClients.length > 0 && !selectedClientId) {
       setSelectedClientId(safeClients[0].id);
@@ -331,6 +356,39 @@ export default function AdminCommandCentre() {
     if (completedIds.length === 0) return;
     await supabase.from('client_tasks').delete().in('id', completedIds);
     setTasks((prev) => prev.filter((t) => !t.is_complete));
+  };
+
+  /* ---------- run sync now ---------- */
+  const handleSyncClient = async (clientId: string) => {
+    setSyncingClients(prev => ({ ...prev, [clientId]: 'syncing' }));
+    try {
+      const res = await fetch('/api/cron/meta-sync-single', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          },
+        body: JSON.stringify({ client_id: clientId }),
+      });
+      if (res.ok) {
+        setSyncingClients(prev => ({ ...prev, [clientId]: 'success' }));
+        // Refresh health data
+        const { data: newHealth } = await supabase
+          .from('client_health')
+          .select('client_id, status, flags, calculated_at')
+          .eq('client_id', clientId)
+          .single();
+        if (newHealth) {
+          setHealthMap(prev => ({ ...prev, [clientId]: newHealth }));
+        }
+        setTimeout(() => setSyncingClients(prev => { const n = { ...prev }; delete n[clientId]; return n; }), 3000);
+      } else {
+        setSyncingClients(prev => ({ ...prev, [clientId]: 'error' }));
+        setTimeout(() => setSyncingClients(prev => { const n = { ...prev }; delete n[clientId]; return n; }), 3000);
+      }
+    } catch {
+      setSyncingClients(prev => ({ ...prev, [clientId]: 'error' }));
+      setTimeout(() => setSyncingClients(prev => { const n = { ...prev }; delete n[clientId]; return n; }), 3000);
+    }
   };
 
   /* ---------- sorted clients ---------- */
@@ -434,18 +492,64 @@ export default function AdminCommandCentre() {
                   </div>
                 )}
 
+                {/* Checklist progress */}
+                {checklistMap[client.id] && (() => {
+                  const cl = checklistMap[client.id];
+                  const items = Object.values(cl);
+                  const done = items.filter(Boolean).length;
+                  const total = items.length;
+                  const pct = Math.round((done / total) * 100);
+                  return (
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-text-muted font-body">Setup</span>
+                        <span className="text-text-secondary font-body">{done}/{total}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-dark-elevated rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gold rounded-full transition-all duration-300"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      {done < total && (
+                        <p className="text-xs text-warning mt-1 font-body">Setup incomplete</p>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {health?.calculated_at && (
                   <p className="text-xs text-text-muted font-body">
-                    Last sync: {relativeTime(health.calculated_at)}
+                    Last synced: {relativeTime(health.calculated_at)}
                   </p>
                 )}
 
-                <button
-                  onClick={() => router.push(`/admin/clients/${client.id}`)}
-                  className="mt-auto text-sm font-medium text-gold hover:text-gold-hover transition-all duration-200 text-left"
-                >
-                  View client &rarr;
-                </button>
+                <div className="mt-auto flex flex-col gap-2">
+                  <button
+                    onClick={() => router.push(`/admin/clients/${client.id}`)}
+                    className="text-sm font-medium text-gold hover:text-gold-hover transition-all duration-200 text-left"
+                  >
+                    View client &rarr;
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleSyncClient(client.id); }}
+                    disabled={syncingClients[client.id] === 'syncing'}
+                    className="text-xs font-medium px-3 py-1.5 rounded-lg border border-dark-border text-text-secondary hover:border-gold hover:text-gold transition-all duration-200 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {syncingClients[client.id] === 'syncing' && (
+                      <span className="w-3 h-3 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {syncingClients[client.id] === 'success' ? (
+                      <span className="text-success">Synced</span>
+                    ) : syncingClients[client.id] === 'error' ? (
+                      <span className="text-danger">Sync failed</span>
+                    ) : syncingClients[client.id] === 'syncing' ? (
+                      'Syncing...'
+                    ) : (
+                      'Run sync now'
+                    )}
+                  </button>
+                </div>
               </div>
             );
           })}

@@ -16,7 +16,9 @@
     "next": "14.2.35",
     "puppeteer": "^24.40.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "resend": "^6.10.0",
+    "twilio": "^5.13.1"
   },
   "devDependencies": {
     "@types/node": "^20",

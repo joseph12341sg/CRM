@@ -13,6 +13,12 @@ type Ad = {
   image_url: string | null;
   campaign_id: string | null;
   created_at: string;
+  ad_fatigue: {
+    cplChange: number;
+    ctrChange: number;
+    frequency: number;
+    updatedAt: string;
+  } | null;
 };
 
 const statusBadgeColor: Record<Ad['status'], 'gray' | 'green' | 'yellow' | 'red'> = {
@@ -36,7 +42,7 @@ export default function AdsPage() {
       setLoading(true);
       let query = supabase
         .from('ads')
-        .select('id, name, status, ad_copy, image_url, campaign_id, created_at')
+        .select('id, name, status, ad_copy, image_url, campaign_id, created_at, ad_fatigue')
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
@@ -137,6 +143,18 @@ export default function AdsPage() {
                   color={statusBadgeColor[ad.status]}
                 />
               </div>
+
+              {/* Fatigue badge */}
+              {ad.ad_fatigue && (() => {
+                const f = ad.ad_fatigue;
+                if (f.frequency > 4.0) {
+                  return <Badge label="Exhausted" color="red" />;
+                }
+                if (f.cplChange > 20 || f.ctrChange < -20) {
+                  return <Badge label="Fatiguing" color="yellow" />;
+                }
+                return null;
+              })()}
 
               {/* Campaign */}
               <p className="text-xs text-text-muted mb-2">
