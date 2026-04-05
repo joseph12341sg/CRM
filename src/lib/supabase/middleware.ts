@@ -1,5 +1,20 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
+
+async function isAdmin(userId: string): Promise<boolean> {
+  const admin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+  const { data } = await admin
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', userId)
+    .single()
+  return data?.is_admin === true
+}
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -56,45 +71,22 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Logged in user on login page - redirect based on role
-  if (user && path === '/login') {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-
+  // Logged in user on login page or root - redirect based on role
+  if (user && (path === '/login' || path === '/')) {
+    const admin = await isAdmin(user.id)
     const url = request.nextUrl.clone()
-    url.pathname = profile?.is_admin ? '/admin' : '/dashboard'
+    url.pathname = admin ? '/admin' : '/dashboard'
     return NextResponse.redirect(url)
   }
 
   // Admin route protection
   if (user && path.startsWith('/admin')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile?.is_admin) {
+    const admin = await isAdmin(user.id)
+    if (!admin) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }
-  }
-
-  // Root redirect
-  if (user && path === '/') {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-
-    const url = request.nextUrl.clone()
-    url.pathname = profile?.is_admin ? '/admin' : '/dashboard'
-    return NextResponse.redirect(url)
   }
 
   return response

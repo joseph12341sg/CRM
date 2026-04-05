@@ -28,18 +28,9 @@ export default function LoginPage() {
       return
     }
 
-    // Get profile to determine redirect
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', user.id)
-        .single()
-
-      router.push(profile?.is_admin ? '/admin' : '/dashboard')
-      router.refresh()
-    }
+    // Redirect to root — middleware will check role and route accordingly
+    router.push('/')
+    router.refresh()
   }
 
   return (
