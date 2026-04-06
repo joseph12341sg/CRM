@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import PixelConfigPanel from '@/components/admin/PixelConfigPanel'
@@ -13,6 +13,8 @@ interface ClientData {
   email: string
   meta_ad_account_id?: string | null
   meta_access_token?: string | null
+  lead_sms_number?: string | null
+  lead_sms_enabled?: boolean
 }
 
 interface KpiData {
@@ -22,6 +24,7 @@ interface KpiData {
   min_leads_per_day: number | null
   min_ctr: number | null
   monthly_budget: number | null
+  min_cac: number | null
 }
 
 type TabKey =
@@ -120,6 +123,7 @@ function KpiForm({ clientId }: { clientId: string }) {
   const [minLeadsPerDay, setMinLeadsPerDay] = useState('')
   const [minCtr, setMinCtr] = useState('')
   const [monthlyBudget, setMonthlyBudget] = useState('')
+  const [minCac, setMinCac] = useState('')
 
   const fetchKpis = useCallback(async () => {
     setLoading(true)
@@ -133,6 +137,7 @@ function KpiForm({ clientId }: { clientId: string }) {
         setMinLeadsPerDay(data.kpis.min_leads_per_day?.toString() ?? '')
         setMinCtr(data.kpis.min_ctr?.toString() ?? '')
         setMonthlyBudget(data.kpis.monthly_budget?.toString() ?? '')
+        setMinCac(data.kpis.min_cac?.toString() ?? '')
       }
     } catch {
       setError('Failed to load KPIs')
@@ -162,6 +167,7 @@ function KpiForm({ clientId }: { clientId: string }) {
           min_leads_per_day: minLeadsPerDay ? parseInt(minLeadsPerDay, 10) : null,
           min_ctr: minCtr ? parseFloat(minCtr) : null,
           monthly_budget: monthlyBudget ? parseFloat(monthlyBudget) : null,
+          min_cac: minCac ? parseFloat(minCac) : null,
         }),
       })
 
@@ -182,7 +188,7 @@ function KpiForm({ clientId }: { clientId: string }) {
     return (
       <div className="flex items-center gap-2 py-8">
         <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm text-navy-300">Loading KPIs...</span>
+        <span className="text-sm text-text-muted font-body">Loading KPIs...</span>
       </div>
     )
   }
@@ -191,7 +197,7 @@ function KpiForm({ clientId }: { clientId: string }) {
     <form onSubmit={handleSave} className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label htmlFor="max_cpl" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="max_cpl" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Max CPL ($)
           </label>
           <input
@@ -201,12 +207,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={maxCpl}
             onChange={(e) => setMaxCpl(e.target.value)}
             placeholder="e.g. 25.00"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div>
-          <label htmlFor="min_roas" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="min_roas" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Min ROAS
           </label>
           <input
@@ -216,12 +222,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={minRoas}
             onChange={(e) => setMinRoas(e.target.value)}
             placeholder="e.g. 3.5"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div>
-          <label htmlFor="min_leads" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="min_leads" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Min Leads / Day
           </label>
           <input
@@ -231,12 +237,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={minLeadsPerDay}
             onChange={(e) => setMinLeadsPerDay(e.target.value)}
             placeholder="e.g. 10"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
         <div>
-          <label htmlFor="min_ctr" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="min_ctr" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Min CTR (%)
           </label>
           <input
@@ -246,12 +252,12 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={minCtr}
             onChange={(e) => setMinCtr(e.target.value)}
             placeholder="e.g. 1.5"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
 
-        <div className="sm:col-span-2">
-          <label htmlFor="monthly_budget" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <div>
+          <label htmlFor="monthly_budget" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
             Monthly Budget ($)
           </label>
           <input
@@ -261,19 +267,34 @@ function KpiForm({ clientId }: { clientId: string }) {
             value={monthlyBudget}
             onChange={(e) => setMonthlyBudget(e.target.value)}
             placeholder="e.g. 5000.00"
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-colors"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="min_cac" className="block text-sm font-medium text-text-secondary mb-1.5 font-body">
+            Max CAC (&pound;)
+          </label>
+          <input
+            id="min_cac"
+            type="number"
+            step="0.01"
+            value={minCac}
+            onChange={(e) => setMinCac(e.target.value)}
+            placeholder="e.g. 50.00"
+            className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
           />
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded-lg text-sm font-body">
           {error}
         </div>
       )}
 
       {saved && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-success/10 border border-success/20 text-success px-4 py-3 rounded-lg text-sm font-body">
           KPIs saved successfully.
         </div>
       )}
@@ -281,7 +302,7 @@ function KpiForm({ clientId }: { clientId: string }) {
       <button
         type="submit"
         disabled={saving}
-        className="px-6 py-2.5 bg-gold text-navy font-semibold rounded-lg hover:bg-gold-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+        className="px-6 py-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-gold-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
       >
         {saving ? 'Saving...' : kpis ? 'Update KPIs' : 'Set KPIs'}
       </button>
@@ -293,13 +314,13 @@ function KpiForm({ clientId }: { clientId: string }) {
 function TabPlaceholder({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 rounded-full bg-navy-50 flex items-center justify-center mb-4">
-        <svg className="w-8 h-8 text-navy-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <div className="w-16 h-16 rounded-full bg-dark-elevated flex items-center justify-center mb-4">
+        <svg className="w-8 h-8 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold text-navy mb-1">{label}</h3>
-      <p className="text-sm text-navy-300 max-w-sm">
+      <h3 className="text-lg font-semibold text-text-primary mb-1 font-heading">{label}</h3>
+      <p className="text-sm text-text-secondary max-w-sm font-body">
         This section is coming soon. The {label.toLowerCase()} module will be built out in a future update.
       </p>
     </div>
@@ -310,13 +331,19 @@ function TabPlaceholder({ label }: { label: string }) {
 export default function ClientAdminPage() {
   const params = useParams()
   const clientId = params.id as string
+  const router = useRouter()
 
   const supabase = createClient()
 
   const [client, setClient] = useState<ClientData | null>(null)
+  const [checklist, setChecklist] = useState<Record<string, boolean> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabKey>('overview')
+
+  // Client switcher state
+  const [allClients, setAllClients] = useState<{ id: string; name: string; health_status: string }[]>([])
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle')
 
   // Read initial tab from URL search params
   useEffect(() => {
@@ -334,7 +361,7 @@ export default function ClientAdminPage() {
     try {
       const { data, error: fetchError } = await supabase
         .from('clients')
-        .select('id, name, email, meta_ad_account_id, meta_access_token')
+        .select('id, name, email, meta_ad_account_id, meta_access_token, lead_sms_number, lead_sms_enabled')
         .eq('id', clientId)
         .single()
 
@@ -342,6 +369,47 @@ export default function ClientAdminPage() {
       if (!data) throw new Error('Client not found')
 
       setClient(data)
+
+      // Fetch checklist
+      const { data: clData } = await supabase
+        .from('client_checklist')
+        .select('*')
+        .eq('client_id', clientId)
+        .single()
+
+      // Fetch pixel config for auto-check
+      const { data: pixelConfig } = await supabase
+        .from('client_pixel_config')
+        .select('pixel_id, capi_access_token')
+        .eq('client_id', clientId)
+        .single()
+
+      // Compute auto-checks
+      const autoApi = !!data.meta_access_token
+      const autoPixel = !!(pixelConfig?.pixel_id && pixelConfig?.capi_access_token)
+      const autoLead = !!data.lead_sms_number
+
+      // If any auto-check differs from stored value, update
+      if (clData && (clData.api_set_up !== autoApi || clData.pixel_set_up !== autoPixel || clData.lead_notification_set_up !== autoLead)) {
+        await supabase.from('client_checklist').update({
+          api_set_up: autoApi,
+          pixel_set_up: autoPixel,
+          lead_notification_set_up: autoLead,
+          updated_at: new Date().toISOString(),
+        }).eq('client_id', clientId)
+      }
+
+      if (clData) {
+        setChecklist({
+          business_manager_connected: clData.business_manager_connected,
+          connected_to_ad_manager: clData.connected_to_ad_manager,
+          ad_created: clData.ad_created,
+          ads_scheduled: clData.ads_scheduled,
+          api_set_up: autoApi,
+          pixel_set_up: autoPixel,
+          lead_notification_set_up: autoLead,
+        })
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load client')
     } finally {
@@ -354,13 +422,59 @@ export default function ClientAdminPage() {
     fetchClient()
   }, [fetchClient])
 
+  /* ---------- checklist toggle ---------- */
+  const toggleChecklistItem = async (key: string) => {
+    if (!checklist) return
+    const newValue = !checklist[key]
+    setChecklist({ ...checklist, [key]: newValue })
+    await supabase.from('client_checklist').update({
+      [key]: newValue,
+      updated_at: new Date().toISOString(),
+    }).eq('client_id', clientId)
+  }
+
+  /* ---------- fetch all clients for switcher ---------- */
+  useEffect(() => {
+    async function fetchClientsList() {
+      try {
+        const res = await fetch('/api/admin/clients-list')
+        const json = await res.json()
+        if (json.clients) setAllClients(json.clients)
+      } catch { /* ignore */ }
+    }
+    fetchClientsList()
+  }, [])
+
+  const currentIndex = allClients.findIndex(c => c.id === clientId)
+  const prevClient = currentIndex > 0 ? allClients[currentIndex - 1] : null
+  const nextClient = currentIndex < allClients.length - 1 ? allClients[currentIndex + 1] : null
+
+  /* ---------- run sync now ---------- */
+  const handleSync = async () => {
+    setSyncStatus('syncing')
+    try {
+      const res = await fetch('/api/cron/meta-sync-single', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          },
+        body: JSON.stringify({ client_id: clientId }),
+      })
+      setSyncStatus(res.ok ? 'success' : 'error')
+      setTimeout(() => setSyncStatus('idle'), 3000)
+    } catch {
+      setSyncStatus('error')
+      setTimeout(() => setSyncStatus('idle'), 3000)
+    }
+  }
+
   /* ---------- loading state ---------- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-dark">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-          <p className="text-navy-300 text-sm">Loading client...</p>
+          <p className="text-text-muted text-sm font-body">Loading client...</p>
         </div>
       </div>
     )
@@ -369,25 +483,25 @@ export default function ClientAdminPage() {
   /* ---------- error state ---------- */
   if (error || !client) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-md text-center">
-          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="flex items-center justify-center h-screen bg-dark">
+        <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border p-8 max-w-md text-center">
+          <div className="w-12 h-12 rounded-full bg-danger/20 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-lg font-semibold text-navy mb-2">Failed to Load Client</h2>
-          <p className="text-sm text-gray-500 mb-6">{error || 'Client not found.'}</p>
+          <h2 className="text-lg font-semibold text-text-primary mb-2 font-heading">Failed to Load Client</h2>
+          <p className="text-sm text-text-secondary mb-6 font-body">{error || 'Client not found.'}</p>
           <div className="flex justify-center gap-3">
             <button
               onClick={fetchClient}
-              className="px-5 py-2.5 bg-gold text-navy font-medium rounded-lg hover:bg-gold-300 transition-colors text-sm"
+              className="px-5 py-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-gold-hover transition-all duration-200 text-sm"
             >
               Retry
             </button>
             <Link
               href="/admin"
-              className="px-5 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              className="px-5 py-2.5 border border-dark-border text-text-secondary font-medium rounded-lg hover:bg-dark-elevated transition-all duration-200 text-sm"
             >
               Back to Command Centre
             </Link>
@@ -404,12 +518,54 @@ export default function ClientAdminPage() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-navy mb-1">Client KPIs</h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <h3 className="text-lg font-semibold text-text-primary mb-1 font-heading">Client KPIs</h3>
+              <p className="text-sm text-text-secondary mb-6 font-body">
                 Set performance thresholds for {client!.name}. These are used to calculate health status and trigger alerts.
               </p>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border p-6">
                 <KpiForm clientId={clientId} />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-text-primary mb-1 font-heading">Lead Notifications</h3>
+              <p className="text-sm text-text-secondary mb-4 font-body">Configure SMS notifications for new leads.</p>
+              <div className="bg-dark-card rounded-lg shadow-gold-sm border border-dark-border p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1.5 font-body">SMS Number</label>
+                  <input
+                    type="tel"
+                    value={client!.lead_sms_number ?? ''}
+                    onChange={(e) => setClient(prev => prev ? {...prev, lead_sms_number: e.target.value} : prev)}
+                    placeholder="+44 7700 900000"
+                    className="w-full px-4 py-2.5 bg-dark-elevated border border-dark-border rounded-lg text-text-primary placeholder-text-muted focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 font-body"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setClient(prev => prev ? {...prev, lead_sms_enabled: !prev.lead_sms_enabled} : prev)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      client!.lead_sms_enabled ? 'bg-gold' : 'bg-dark-elevated'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      client!.lead_sms_enabled ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                  <span className="text-sm text-text-secondary font-body">Enable SMS notifications</span>
+                </div>
+                <button
+                  onClick={async () => {
+                    await supabase.from('clients').update({
+                      lead_sms_number: client!.lead_sms_number,
+                      lead_sms_enabled: client!.lead_sms_enabled,
+                    }).eq('id', clientId);
+                  }}
+                  className="px-5 py-2.5 bg-gold text-dark font-bold rounded-lg hover:bg-gold-hover transition-all duration-200 text-sm"
+                >
+                  Save Notification Settings
+                </button>
               </div>
             </div>
           </div>
@@ -433,36 +589,133 @@ export default function ClientAdminPage() {
 
   /* ---------- main render ---------- */
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Admin banner */}
-      <div className="bg-navy text-white px-6 py-3 flex items-center justify-between flex-shrink-0">
+    <div className="min-h-screen flex flex-col bg-dark">
+      {/* Admin banner with client switcher */}
+      <div className="bg-dark-nav text-text-primary px-6 py-3 flex items-center justify-between flex-shrink-0 border-b border-dark-border">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-          <span className="text-sm font-medium">
-            Viewing as admin &mdash;{' '}
-            <span className="text-gold font-semibold">{client.name}</span>
-          </span>
+          <span className="text-sm font-medium font-body">Viewing as admin &mdash;</span>
+
+          {/* Previous arrow */}
+          <button
+            onClick={() => prevClient && router.push(`/admin/clients/${prevClient.id}`)}
+            disabled={!prevClient}
+            className="p-1 rounded hover:bg-dark-elevated disabled:opacity-30 transition-all duration-200"
+            title="Previous client"
+          >
+            <svg className="w-4 h-4 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Client switcher dropdown */}
+          <select
+            value={clientId}
+            onChange={(e) => router.push(`/admin/clients/${e.target.value}`)}
+            className="bg-dark-elevated border border-dark-border rounded-lg px-3 py-1.5 text-sm text-gold font-semibold focus:ring-2 focus:ring-gold focus:border-gold outline-none transition-all duration-200 max-w-[200px]"
+          >
+            {allClients.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.health_status === 'critical' ? '🔴 ' : c.health_status === 'warning' ? '🟡 ' : '🟢 '}{c.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Next arrow */}
+          <button
+            onClick={() => nextClient && router.push(`/admin/clients/${nextClient.id}`)}
+            disabled={!nextClient}
+            className="p-1 rounded hover:bg-dark-elevated disabled:opacity-30 transition-all duration-200"
+            title="Next client"
+          >
+            <svg className="w-4 h-4 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
-        <Link
-          href="/admin"
-          className="text-sm text-gold hover:text-gold-200 transition-colors font-medium"
-        >
-          Back to Command Centre
-        </Link>
+
+        <div className="flex items-center gap-3">
+          {/* Run sync now */}
+          <button
+            onClick={handleSync}
+            disabled={syncStatus === 'syncing'}
+            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-dark-border text-text-secondary hover:border-gold hover:text-gold transition-all duration-200 disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {syncStatus === 'syncing' && (
+              <span className="w-3 h-3 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            )}
+            {syncStatus === 'success' ? (
+              <span className="text-success">Synced</span>
+            ) : syncStatus === 'error' ? (
+              <span className="text-danger">Sync failed</span>
+            ) : syncStatus === 'syncing' ? (
+              'Syncing...'
+            ) : (
+              'Run sync now'
+            )}
+          </button>
+
+          <Link
+            href="/admin"
+            className="text-sm text-gold hover:text-gold-hover transition-all duration-200 font-medium"
+          >
+            Back to Command Centre
+          </Link>
+        </div>
       </div>
+
+      {/* Onboarding Checklist */}
+      {checklist && (
+        <div className="bg-dark-card border-b border-dark-border px-6 py-4">
+          <div className="flex items-center gap-6 overflow-x-auto">
+            {[
+              { key: 'business_manager_connected', label: 'Business Manager connected', auto: false },
+              { key: 'connected_to_ad_manager', label: 'Connected to ad manager', auto: false },
+              { key: 'ad_created', label: 'Ad created', auto: false },
+              { key: 'ads_scheduled', label: 'Ads scheduled', auto: false },
+              { key: 'api_set_up', label: 'API set up', auto: true },
+              { key: 'pixel_set_up', label: 'Pixel set up', auto: true },
+              { key: 'lead_notification_set_up', label: 'Lead notification set up', auto: true },
+            ].map((item) => (
+              <button
+                key={item.key}
+                onClick={() => !item.auto && toggleChecklistItem(item.key)}
+                disabled={item.auto}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                  checklist[item.key]
+                    ? 'bg-success/10 text-success border border-success/20'
+                    : 'bg-dark-elevated text-text-secondary border border-dark-border hover:border-gold/50'
+                } ${item.auto ? 'cursor-default opacity-80' : 'cursor-pointer'}`}
+              >
+                <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 ${
+                  checklist[item.key] ? 'bg-success' : 'border border-dark-border bg-dark-elevated'
+                }`}>
+                  {checklist[item.key] && (
+                    <svg className="w-3 h-3 text-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                {item.label}
+                {item.auto && <span className="text-xs text-text-muted">(auto)</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar tabs */}
-        <aside className="w-56 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+        <aside className="w-56 bg-dark-card border-r border-dark-border flex-shrink-0 overflow-y-auto">
           <nav className="py-4">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors text-left ${
+                className={`w-full flex items-center gap-3 px-5 py-3 text-sm font-medium transition-all duration-200 text-left ${
                   activeTab === tab.key
                     ? 'bg-gold/10 text-gold border-r-2 border-gold'
-                    : 'text-navy-300 hover:bg-gray-50 hover:text-navy'
+                    : 'text-text-secondary hover:bg-dark-elevated hover:text-text-primary'
                 }`}
               >
                 {tab.icon}
@@ -473,7 +726,7 @@ export default function ClientAdminPage() {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-8 bg-gray-50">
+        <main className="flex-1 overflow-y-auto p-8 bg-dark">
           {renderTabContent()}
         </main>
       </div>

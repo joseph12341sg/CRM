@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="metalLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8EDF2;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#B0BEC5;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#CFD8DC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#78909C;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="metalDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#546E7A;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#263238;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#37474F;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="20%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#B3E5FC;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#B3E5FC;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  <!-- 8-pointed star -->
+  <!-- Cardinal points (N, E, S, W) - longer -->
+  <polygon points="100,10 108,80 100,100" fill="url(#metalLight)" />
+  <polygon points="100,10 92,80 100,100" fill="url(#metalDark)" />
+  <polygon points="190,100 120,92 100,100" fill="url(#metalLight)" />
+  <polygon points="190,100 120,108 100,100" fill="url(#metalDark)" />
+  <polygon points="100,190 92,120 100,100" fill="url(#metalLight)" />
+  <polygon points="100,190 108,120 100,100" fill="url(#metalDark)" />
+  <polygon points="10,100 80,108 100,100" fill="url(#metalLight)" />
+  <polygon points="10,100 80,92 100,100" fill="url(#metalDark)" />
+  <!-- Diagonal points (NE, SE, SW, NW) - shorter -->
+  <polygon points="160,40 115,85 100,100" fill="url(#metalLight)" />
+  <polygon points="160,40 112,78 100,100" fill="url(#metalDark)" />
+  <polygon points="160,160 115,115 100,100" fill="url(#metalLight)" />
+  <polygon points="160,160 112,122 100,100" fill="url(#metalDark)" />
+  <polygon points="40,160 85,115 100,100" fill="url(#metalLight)" />
+  <polygon points="40,160 88,122 100,100" fill="url(#metalDark)" />
+  <polygon points="40,40 85,85 100,100" fill="url(#metalLight)" />
+  <polygon points="40,40 88,78 100,100" fill="url(#metalDark)" />
+  <!-- Center glow -->
+  <circle cx="100" cy="100" r="25" fill="url(#glow)" />
+</svg>

@@ -5,14 +5,14 @@ type BadgeProps = {
 };
 
 const colorMap: Record<BadgeProps['color'], string> = {
-  green: 'bg-green-100 text-green-800',
-  yellow: 'bg-yellow-100 text-yellow-800',
-  red: 'bg-red-100 text-red-800',
-  blue: 'bg-blue-100 text-blue-800',
-  purple: 'bg-purple-100 text-purple-800',
-  teal: 'bg-teal-100 text-teal-800',
-  gray: 'bg-gray-100 text-gray-800',
-  amber: 'bg-amber-100 text-amber-800',
+  green: 'bg-success/15 text-success border border-success/20',
+  yellow: 'bg-warning/15 text-warning border border-warning/20',
+  red: 'bg-danger/15 text-danger border border-danger/20',
+  blue: 'bg-blue-500/15 text-blue-400 border border-blue-500/20',
+  purple: 'bg-purple-500/15 text-purple-400 border border-purple-500/20',
+  teal: 'bg-teal-500/15 text-teal-400 border border-teal-500/20',
+  gray: 'bg-dark-elevated text-text-secondary border border-dark-border',
+  amber: 'bg-warning/15 text-warning border border-warning/20',
 };
 
 const sizeMap: Record<NonNullable<BadgeProps['size']>, string> = {

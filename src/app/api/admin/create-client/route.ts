@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // 3. Extract body
     const body = await request.json()
-    const { name, email, password, meta_ad_account_id, meta_access_token } = body
+    const { name, email, password, meta_ad_account_id, meta_access_token, lead_sms_number, lead_sms_enabled } = body
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -78,6 +78,8 @@ export async function POST(request: NextRequest) {
     }
     if (meta_ad_account_id) clientRow.meta_ad_account_id = meta_ad_account_id
     if (meta_access_token) clientRow.meta_access_token = meta_access_token
+    if (lead_sms_number) clientRow.lead_sms_number = lead_sms_number
+    if (lead_sms_enabled) clientRow.lead_sms_enabled = lead_sms_enabled
 
     const { data: clientData, error: clientInsertError } = await adminSupabase
       .from('clients')
@@ -94,6 +96,18 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // 6b. Insert onboarding checklist
+    await adminSupabase.from('client_checklist').insert({
+      client_id: newUserId,
+      business_manager_connected: false,
+      connected_to_ad_manager: false,
+      ad_created: false,
+      ads_scheduled: false,
+      api_set_up: !!meta_access_token,
+      pixel_set_up: false,
+      lead_notification_set_up: false,
+    })
 
     // 7. Return created client + password
     return NextResponse.json({

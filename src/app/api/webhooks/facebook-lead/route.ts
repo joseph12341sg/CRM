@@ -108,7 +108,7 @@ async function processEntries(body: FacebookWebhookPayload) {
         // a) Match client by meta_ad_account_id (try page_id first) -----------
         let { data: client } = await admin
           .from('clients')
-          .select('id, meta_access_token, meta_ad_account_id')
+          .select('id, meta_access_token, meta_ad_account_id, name, lead_sms_number, lead_sms_enabled')
           .eq('meta_ad_account_id', page_id)
           .single()
 
@@ -116,7 +116,7 @@ async function processEntries(body: FacebookWebhookPayload) {
           // Fallback: look for any client whose ad account matches
           const adAccountRes = await admin
             .from('clients')
-            .select('id, meta_access_token, meta_ad_account_id')
+            .select('id, meta_access_token, meta_ad_account_id, name, lead_sms_number, lead_sms_enabled')
             .not('meta_access_token', 'is', null)
             .limit(1)
             .single()
@@ -197,8 +197,57 @@ async function processEntries(body: FacebookWebhookPayload) {
           changed_at: new Date().toISOString(),
         })
 
+        // g) Send SMS notification if enabled (fire and forget) --------
+        if (client.lead_sms_enabled && client.lead_sms_number) {
+          import('@/lib/twilio').then(({ sendLeadSMS }) => {
+            sendLeadSMS(
+              client.lead_sms_number!,
+              client.name ?? 'Client',
+              firstName,
+              lastName ?? '',
+              phone,
+              adName,
+            );
+          }).catch(err => console.error('[facebook-lead] SMS import error', err));
+        }
+
+        // h) Calculate lead score ----------------------------------------
+        let leadScore = 0;
+        if (phone) leadScore += 20;
+        if (email) leadScore += 20;
+
+        // Check if lead came in between 08:00-20:00 local time
+        const hour = new Date().getHours();
+        if (hour >= 8 && hour < 20) leadScore += 15;
+
+        // Check source ad ROAS > 2.0
+        if (ad_id) {
+          const { data: adSnapshot } = await admin
+            .from('meta_snapshots')
+            .select('roas')
+            .eq('client_id', client.id)
+            .eq('ad_id', ad_id)
+            .order('snapshot_date', { ascending: false })
+            .limit(1)
+            .single();
+          if (adSnapshot && Number(adSnapshot.roas) > 2.0) leadScore += 25;
+        }
+
+        // Check if source campaign has > 10 leads total
+        if (campaign_id) {
+          const { count: campaignLeads } = await admin
+            .from('contacts')
+            .select('id', { count: 'exact', head: true })
+            .eq('client_id', client.id)
+            .eq('source_campaign_id', campaign_id);
+          if ((campaignLeads ?? 0) > 10) leadScore += 20;
+        }
+
+        // Update contact with lead_score
+        await admin.from('contacts').update({ lead_score: leadScore }).eq('id', contact!.id);
+
         console.log(
-          `[facebook-lead] Processed lead ${leadgen_id} -> contact ${contact!.id}`
+          `[facebook-lead] Processed lead ${leadgen_id} -> contact ${contact!.id} (score: ${leadScore})`
         )
       } catch (err) {
         console.error(

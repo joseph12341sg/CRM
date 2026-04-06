@@ -80,11 +80,11 @@ function formatCurrency(n: number | null | undefined): string {
 function healthColor(status: string) {
   switch (status?.toLowerCase()) {
     case 'critical':
-      return 'bg-red-100 text-red-700';
+      return 'bg-danger/20 text-danger';
     case 'warning':
-      return 'bg-amber-100 text-amber-700';
+      return 'bg-warning/20 text-warning';
     default:
-      return 'bg-green-100 text-green-700';
+      return 'bg-success/20 text-success';
   }
 }
 
@@ -102,17 +102,17 @@ function healthSortOrder(status: string): number {
 function stageBadgeColor(stage: string | null) {
   switch (stage?.toLowerCase()) {
     case 'new':
-      return 'bg-blue-100 text-blue-700';
+      return 'bg-blue-500/20 text-blue-400';
     case 'contacted':
-      return 'bg-indigo-100 text-indigo-700';
+      return 'bg-indigo-500/20 text-indigo-400';
     case 'qualified':
-      return 'bg-purple-100 text-purple-700';
+      return 'bg-purple-500/20 text-purple-400';
     case 'won':
-      return 'bg-green-100 text-green-700';
+      return 'bg-success/20 text-success';
     case 'lost':
-      return 'bg-gray-100 text-gray-500';
+      return 'bg-dark-elevated text-text-muted';
     default:
-      return 'bg-gray-100 text-gray-600';
+      return 'bg-dark-elevated text-text-muted';
   }
 }
 
@@ -135,6 +135,12 @@ export default function AdminCommandCentre() {
   const [healthMap, setHealthMap] = useState<Record<string, ClientHealth>>({});
   const [latestSnapshots, setLatestSnapshots] = useState<Record<string, MetaSnapshot>>({});
   const [pipelineCounts, setPipelineCounts] = useState<Record<string, Record<string, number>>>({});
+
+  // checklist
+  const [checklistMap, setChecklistMap] = useState<Record<string, Record<string, boolean>>>({});
+
+  // sync state per client
+  const [syncingClients, setSyncingClients] = useState<Record<string, 'syncing' | 'success' | 'error'>>({});
 
   // alerts
   const [alerts, setAlerts] = useState<
@@ -244,6 +250,25 @@ export default function AdminCommandCentre() {
       .limit(20);
     setRecentContacts((recentRows as unknown as Contact[]) ?? []);
 
+    // 8. checklist data
+    const { data: checklistRows } = await supabase
+      .from('client_checklist')
+      .select('client_id, business_manager_connected, connected_to_ad_manager, ad_created, ads_scheduled, api_set_up, pixel_set_up, lead_notification_set_up');
+
+    const clMap: Record<string, Record<string, boolean>> = {};
+    (checklistRows ?? []).forEach((row: any) => {
+      clMap[row.client_id] = {
+        business_manager_connected: row.business_manager_connected,
+        connected_to_ad_manager: row.connected_to_ad_manager,
+        ad_created: row.ad_created,
+        ads_scheduled: row.ads_scheduled,
+        api_set_up: row.api_set_up,
+        pixel_set_up: row.pixel_set_up,
+        lead_notification_set_up: row.lead_notification_set_up,
+      };
+    });
+    setChecklistMap(clMap);
+
     // default selected client
     if (safeClients.length > 0 && !selectedClientId) {
       setSelectedClientId(safeClients[0].id);
@@ -333,6 +358,39 @@ export default function AdminCommandCentre() {
     setTasks((prev) => prev.filter((t) => !t.is_complete));
   };
 
+  /* ---------- run sync now ---------- */
+  const handleSyncClient = async (clientId: string) => {
+    setSyncingClients(prev => ({ ...prev, [clientId]: 'syncing' }));
+    try {
+      const res = await fetch('/api/cron/meta-sync-single', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          },
+        body: JSON.stringify({ client_id: clientId }),
+      });
+      if (res.ok) {
+        setSyncingClients(prev => ({ ...prev, [clientId]: 'success' }));
+        // Refresh health data
+        const { data: newHealth } = await supabase
+          .from('client_health')
+          .select('client_id, status, flags, calculated_at')
+          .eq('client_id', clientId)
+          .single();
+        if (newHealth) {
+          setHealthMap(prev => ({ ...prev, [clientId]: newHealth }));
+        }
+        setTimeout(() => setSyncingClients(prev => { const n = { ...prev }; delete n[clientId]; return n; }), 3000);
+      } else {
+        setSyncingClients(prev => ({ ...prev, [clientId]: 'error' }));
+        setTimeout(() => setSyncingClients(prev => { const n = { ...prev }; delete n[clientId]; return n; }), 3000);
+      }
+    } catch {
+      setSyncingClients(prev => ({ ...prev, [clientId]: 'error' }));
+      setTimeout(() => setSyncingClients(prev => { const n = { ...prev }; delete n[clientId]; return n; }), 3000);
+    }
+  };
+
   /* ---------- sorted clients ---------- */
   const sortedClients = [...clients].sort((a, b) => {
     const aOrder = healthSortOrder(healthMap[a.id]?.status ?? 'healthy');
@@ -343,21 +401,21 @@ export default function AdminCommandCentre() {
   /* ---------- render ---------- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-dark">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-          <p className="text-navy-300 text-sm">Loading Command Centre...</p>
+          <p className="text-text-muted text-sm font-body">Loading Command Centre...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-8 space-y-8 bg-dark min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-navy">Command Centre</h1>
-        <p className="text-navy-300 text-sm mt-1">Overview of all client accounts</p>
+        <h1 className="text-2xl font-bold text-text-primary font-heading">Command Centre</h1>
+        <p className="text-text-secondary text-sm mt-1 font-body">Overview of all client accounts</p>
       </div>
 
       {/* ========== A) Summary Bar ========== */}
@@ -370,17 +428,17 @@ export default function AdminCommandCentre() {
         ].map((card) => (
           <div
             key={card.label}
-            className="bg-white rounded-xl p-6 shadow-sm border-l-4 border-gold"
+            className="bg-dark-card rounded-xl p-6 shadow-gold-sm border border-dark-border border-l-4 border-l-gold"
           >
-            <p className="text-3xl font-bold text-navy">{card.value}</p>
-            <p className="text-sm text-navy-300 mt-1">{card.label}</p>
+            <p className="text-3xl font-bold text-gold font-heading">{card.value}</p>
+            <p className="text-sm text-text-secondary mt-1 font-body">{card.label}</p>
           </div>
         ))}
       </div>
 
       {/* ========== B) Client Cards Row ========== */}
       <div>
-        <h2 className="text-lg font-semibold text-navy mb-3">Clients</h2>
+        <h2 className="text-lg font-semibold text-text-primary font-heading mb-3">Clients</h2>
         <div className="flex gap-4 overflow-x-auto pb-3">
           {sortedClients.map((client) => {
             const health = healthMap[client.id];
@@ -391,10 +449,10 @@ export default function AdminCommandCentre() {
             return (
               <div
                 key={client.id}
-                className="bg-white rounded-xl p-5 shadow-sm min-w-[280px] max-w-[320px] flex flex-col gap-3 flex-shrink-0"
+                className="bg-dark-card rounded-xl p-5 shadow-gold-sm border border-dark-border min-w-[280px] max-w-[320px] flex flex-col gap-3 flex-shrink-0"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-navy truncate">{client.name}</h3>
+                  <h3 className="font-bold text-text-primary font-heading truncate">{client.name}</h3>
                   <span
                     className={`text-xs font-medium px-2.5 py-0.5 rounded-full capitalize ${healthColor(status)}`}
                   >
@@ -405,20 +463,20 @@ export default function AdminCommandCentre() {
                 {snap ? (
                   <div className="grid grid-cols-3 gap-2 text-center text-sm">
                     <div>
-                      <p className="font-semibold text-navy">{formatCurrency(snap.cpl)}</p>
-                      <p className="text-navy-300 text-xs">CPL</p>
+                      <p className="font-semibold text-gold font-heading">{formatCurrency(snap.cpl)}</p>
+                      <p className="text-text-muted text-xs font-body">CPL</p>
                     </div>
                     <div>
-                      <p className="font-semibold text-navy">{formatNumber(snap.roas)}</p>
-                      <p className="text-navy-300 text-xs">ROAS</p>
+                      <p className="font-semibold text-gold font-heading">{formatNumber(snap.roas)}</p>
+                      <p className="text-text-muted text-xs font-body">ROAS</p>
                     </div>
                     <div>
-                      <p className="font-semibold text-navy">{formatNumber(snap.leads)}</p>
-                      <p className="text-navy-300 text-xs">Leads</p>
+                      <p className="font-semibold text-gold font-heading">{formatNumber(snap.leads)}</p>
+                      <p className="text-text-muted text-xs font-body">Leads</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-navy-300 italic">No data</p>
+                  <p className="text-sm text-text-muted italic font-body">No data</p>
                 )}
 
                 {Object.keys(pipeline).length > 0 && (
@@ -434,18 +492,64 @@ export default function AdminCommandCentre() {
                   </div>
                 )}
 
+                {/* Checklist progress */}
+                {checklistMap[client.id] && (() => {
+                  const cl = checklistMap[client.id];
+                  const items = Object.values(cl);
+                  const done = items.filter(Boolean).length;
+                  const total = items.length;
+                  const pct = Math.round((done / total) * 100);
+                  return (
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-text-muted font-body">Setup</span>
+                        <span className="text-text-secondary font-body">{done}/{total}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-dark-elevated rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gold rounded-full transition-all duration-300"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      {done < total && (
+                        <p className="text-xs text-warning mt-1 font-body">Setup incomplete</p>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {health?.calculated_at && (
-                  <p className="text-xs text-navy-300">
-                    Last sync: {relativeTime(health.calculated_at)}
+                  <p className="text-xs text-text-muted font-body">
+                    Last synced: {relativeTime(health.calculated_at)}
                   </p>
                 )}
 
-                <button
-                  onClick={() => router.push(`/admin/clients/${client.id}`)}
-                  className="mt-auto text-sm font-medium text-gold hover:text-gold-600 transition-colors text-left"
-                >
-                  View client &rarr;
-                </button>
+                <div className="mt-auto flex flex-col gap-2">
+                  <button
+                    onClick={() => router.push(`/admin/clients/${client.id}`)}
+                    className="text-sm font-medium text-gold hover:text-gold-hover transition-all duration-200 text-left"
+                  >
+                    View client &rarr;
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleSyncClient(client.id); }}
+                    disabled={syncingClients[client.id] === 'syncing'}
+                    className="text-xs font-medium px-3 py-1.5 rounded-lg border border-dark-border text-text-secondary hover:border-gold hover:text-gold transition-all duration-200 disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    {syncingClients[client.id] === 'syncing' && (
+                      <span className="w-3 h-3 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {syncingClients[client.id] === 'success' ? (
+                      <span className="text-success">Synced</span>
+                    ) : syncingClients[client.id] === 'error' ? (
+                      <span className="text-danger">Sync failed</span>
+                    ) : syncingClients[client.id] === 'syncing' ? (
+                      'Syncing...'
+                    ) : (
+                      'Run sync now'
+                    )}
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -453,10 +557,10 @@ export default function AdminCommandCentre() {
           {/* + Create client card */}
           <button
             onClick={() => router.push('/admin/clients/create')}
-            className="bg-white rounded-xl p-5 shadow-sm min-w-[200px] flex flex-col items-center justify-center gap-2 flex-shrink-0 border-2 border-dashed border-navy-100 hover:border-gold transition-colors"
+            className="bg-dark-card rounded-xl p-5 shadow-gold-sm min-w-[200px] flex flex-col items-center justify-center gap-2 flex-shrink-0 border-2 border-dashed border-dark-border hover:border-gold transition-all duration-200"
           >
             <span className="text-3xl text-gold">+</span>
-            <span className="text-sm font-medium text-navy-300">Create client</span>
+            <span className="text-sm font-medium text-text-secondary font-body">Create client</span>
           </button>
         </div>
       </div>
@@ -464,24 +568,24 @@ export default function AdminCommandCentre() {
       {/* ========== C) Two-column: Alerts + Leads Feed ========== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* KPI Alerts Panel */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-navy mb-4">KPI Alerts</h2>
+        <div className="bg-dark-card rounded-xl shadow-gold-sm border border-dark-border p-6">
+          <h2 className="text-lg font-semibold text-text-primary font-heading mb-4">KPI Alerts</h2>
           {alerts.length === 0 ? (
-            <div className="flex items-center gap-2 text-green-600">
+            <div className="flex items-center gap-2 text-success">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-sm font-medium">All clients healthy</span>
+              <span className="text-sm font-medium font-body">All clients healthy</span>
             </div>
           ) : (
             <div className="space-y-3 max-h-[400px] overflow-y-auto">
               {alerts.map((alert, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                  <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
+                <div key={i} className="flex items-start gap-3 p-3 bg-danger/10 rounded-lg border border-danger/20">
+                  <div className="w-2 h-2 rounded-full bg-danger mt-1.5 flex-shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-navy">{alert.clientName}</p>
-                    <p className="text-sm text-navy-300">{alert.message}</p>
-                    <p className="text-xs text-navy-200 mt-1">
+                    <p className="text-sm font-medium text-text-primary font-body">{alert.clientName}</p>
+                    <p className="text-sm text-text-secondary font-body">{alert.message}</p>
+                    <p className="text-xs text-text-muted mt-1 font-body">
                       {relativeTime(alert.calculatedAt)}
                     </p>
                   </div>
@@ -492,10 +596,10 @@ export default function AdminCommandCentre() {
         </div>
 
         {/* Global Leads Feed */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-navy mb-4">Recent Leads</h2>
+        <div className="bg-dark-card rounded-xl shadow-gold-sm border border-dark-border p-6">
+          <h2 className="text-lg font-semibold text-text-primary font-heading mb-4">Recent Leads</h2>
           {recentContacts.length === 0 ? (
-            <p className="text-sm text-navy-300">No leads yet</p>
+            <p className="text-sm text-text-secondary font-body">No leads yet</p>
           ) : (
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {recentContacts.map((contact) => {
@@ -509,17 +613,17 @@ export default function AdminCommandCentre() {
                         `/admin/clients/${contact.client_id}?tab=pipeline`,
                       )
                     }
-                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-dark-elevated transition-all duration-200 text-left"
                   >
-                    <div className="w-8 h-8 rounded-full bg-navy-50 flex items-center justify-center text-xs font-bold text-navy flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-dark-elevated flex items-center justify-center text-xs font-bold text-gold flex-shrink-0">
                       {(contact.first_name?.[0] ?? '').toUpperCase()}
                       {(contact.last_name?.[0] ?? '').toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-navy truncate">
+                      <p className="text-sm font-medium text-text-primary truncate font-body">
                         {contact.first_name} {contact.last_name}
                       </p>
-                      <p className="text-xs text-navy-300 truncate">
+                      <p className="text-xs text-text-secondary truncate font-body">
                         {clientName}
                         {contact.source_ad_name ? ` \u00B7 ${contact.source_ad_name}` : ''}
                       </p>
@@ -529,7 +633,7 @@ export default function AdminCommandCentre() {
                     >
                       {contact.pipeline_stage ?? 'N/A'}
                     </span>
-                    <span className="text-xs text-navy-200 flex-shrink-0">
+                    <span className="text-xs text-text-muted flex-shrink-0 font-body">
                       {relativeTime(contact.created_at)}
                     </span>
                   </button>
@@ -541,13 +645,13 @@ export default function AdminCommandCentre() {
       </div>
 
       {/* ========== D) Notes & Tasks ========== */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="bg-dark-card rounded-xl shadow-gold-sm border border-dark-border p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-navy">Notes &amp; Tasks</h2>
+          <h2 className="text-lg font-semibold text-text-primary font-heading">Notes &amp; Tasks</h2>
           <select
             value={selectedClientId}
             onChange={(e) => setSelectedClientId(e.target.value)}
-            className="border border-navy-100 rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+            className="bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all duration-200"
           >
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
@@ -560,17 +664,17 @@ export default function AdminCommandCentre() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Notes */}
           <div>
-            <h3 className="text-sm font-semibold text-navy mb-2">Notes</h3>
+            <h3 className="text-sm font-semibold text-text-primary font-heading mb-2">Notes</h3>
             <textarea
               value={noteContent}
               onChange={(e) => setNoteContent(e.target.value)}
               onBlur={saveNote}
               placeholder="Add notes for this client..."
               rows={6}
-              className="w-full border border-navy-100 rounded-lg p-3 text-sm text-navy resize-none focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+              className="w-full bg-dark-elevated border border-dark-border rounded-lg p-3 text-sm text-text-primary placeholder-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all duration-200 font-body"
             />
             {noteSavedAt && (
-              <p className="text-xs text-navy-200 mt-1">
+              <p className="text-xs text-text-muted mt-1 font-body">
                 Last saved: {new Date(noteSavedAt).toLocaleString()}
               </p>
             )}
@@ -579,11 +683,11 @@ export default function AdminCommandCentre() {
           {/* Tasks */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-navy">Tasks</h3>
+              <h3 className="text-sm font-semibold text-text-primary font-heading">Tasks</h3>
               {tasks.some((t) => t.is_complete) && (
                 <button
                   onClick={clearCompleted}
-                  className="text-xs text-red-500 hover:text-red-700 transition-colors"
+                  className="text-xs text-danger hover:text-danger/80 transition-all duration-200"
                 >
                   Clear completed
                 </button>
@@ -598,17 +702,17 @@ export default function AdminCommandCentre() {
                 onChange={(e) => setNewTaskTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTask()}
                 placeholder="New task..."
-                className="flex-1 border border-navy-100 rounded-lg px-3 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+                className="flex-1 bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all duration-200 font-body"
               />
               <input
                 type="date"
                 value={newTaskDue}
                 onChange={(e) => setNewTaskDue(e.target.value)}
-                className="border border-navy-100 rounded-lg px-2 py-2 text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent"
+                className="bg-dark-elevated border border-dark-border rounded-lg px-2 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent transition-all duration-200 font-body"
               />
               <button
                 onClick={addTask}
-                className="bg-gold text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gold-600 transition-colors"
+                className="bg-gold text-dark px-4 py-2 rounded-lg text-sm font-bold hover:bg-gold-hover transition-all duration-200"
               >
                 Add
               </button>
@@ -617,12 +721,12 @@ export default function AdminCommandCentre() {
             {/* Task list */}
             <div className="space-y-2 max-h-[240px] overflow-y-auto">
               {tasks.length === 0 ? (
-                <p className="text-sm text-navy-300">No tasks yet</p>
+                <p className="text-sm text-text-secondary font-body">No tasks yet</p>
               ) : (
                 tasks.map((task) => (
                   <label
                     key={task.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-dark-elevated cursor-pointer transition-all duration-200"
                   >
                     <input
                       type="checkbox"
@@ -631,12 +735,12 @@ export default function AdminCommandCentre() {
                       className="w-4 h-4 accent-gold rounded"
                     />
                     <span
-                      className={`text-sm flex-1 ${task.is_complete ? 'line-through text-navy-200' : 'text-navy'}`}
+                      className={`text-sm flex-1 font-body ${task.is_complete ? 'line-through text-text-muted' : 'text-text-primary'}`}
                     >
                       {task.title}
                     </span>
                     {task.due_date && (
-                      <span className="text-xs text-navy-300">
+                      <span className="text-xs text-text-secondary font-body">
                         {new Date(task.due_date).toLocaleDateString()}
                       </span>
                     )}

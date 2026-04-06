@@ -159,26 +159,26 @@ export default function CreateAdPage() {
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold text-navy mb-8">Create New Ad</h1>
+      <h1 className="text-2xl font-bold font-heading text-text-primary mb-8">Create New Ad</h1>
 
       <div className="space-y-6">
         {/* Ad name */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
-            Ad Name <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-text-secondary mb-1">
+            Ad Name <span className="text-danger">*</span>
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter ad name"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           />
         </div>
 
         {/* Template selector */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Template
           </label>
           <select
@@ -187,7 +187,7 @@ export default function CreateAdPage() {
               setSelectedTemplateId(e.target.value);
               setPlaceholderValues({});
             }}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           >
             <option value="">Select a template...</option>
             {templates.map((t) => (
@@ -200,11 +200,11 @@ export default function CreateAdPage() {
 
         {/* Placeholder fields */}
         {selectedTemplate && placeholders.length > 0 && (
-          <div className="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-3">
-            <p className="text-sm font-medium text-navy">Template Variables</p>
+          <div className="rounded-md border border-dark-border bg-dark-elevated p-4 space-y-3">
+            <p className="text-sm font-medium text-gold">Template Variables</p>
             {placeholders.map((key) => (
               <div key={key}>
-                <label className="block text-xs font-medium text-gray-600 mb-1 capitalize">
+                <label className="block text-xs font-medium text-text-muted mb-1 capitalize">
                   {key.replace(/_/g, ' ')}
                 </label>
                 <input
@@ -217,13 +217,13 @@ export default function CreateAdPage() {
                     }))
                   }
                   placeholder={`Enter ${key.replace(/_/g, ' ')}`}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+                  className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
                 />
               </div>
             ))}
 
             {/* Template preview */}
-            <div className="mt-2 rounded bg-white p-3 text-sm text-gray-700 whitespace-pre-wrap border border-gray-200">
+            <div className="mt-2 rounded bg-dark-card p-3 text-sm text-text-secondary whitespace-pre-wrap border border-dark-border">
               {buildFilledTemplate()}
             </div>
           </div>
@@ -234,10 +234,10 @@ export default function CreateAdPage() {
           <button
             onClick={handleGenerate}
             disabled={generating || !selectedTemplate}
-            className="rounded-md bg-navy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="rounded-md border border-gold text-gold px-4 py-2 text-sm font-bold hover:bg-gold hover:text-dark transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {generating && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-gold border-t-transparent" />
             )}
             {generating ? 'Generating...' : 'Generate Copy with AI'}
           </button>
@@ -245,7 +245,7 @@ export default function CreateAdPage() {
 
         {/* Ad copy textarea */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Ad Copy
           </label>
           <textarea
@@ -253,13 +253,13 @@ export default function CreateAdPage() {
             onChange={(e) => setAdCopy(e.target.value)}
             rows={8}
             placeholder="Your ad copy will appear here after generation, or type it manually"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           />
         </div>
 
         {/* Image URL */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Image URL
           </label>
           <input
@@ -267,14 +267,14 @@ export default function CreateAdPage() {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://example.com/image.png"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           />
         </div>
 
         {/* Meta IDs */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Campaign ID
             </label>
             <input
@@ -282,11 +282,11 @@ export default function CreateAdPage() {
               value={campaignId}
               onChange={(e) => setCampaignId(e.target.value)}
               placeholder="Meta Campaign ID"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+              className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Ad Set ID
             </label>
             <input
@@ -294,11 +294,11 @@ export default function CreateAdPage() {
               value={adSetId}
               onChange={(e) => setAdSetId(e.target.value)}
               placeholder="Meta Ad Set ID"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+              className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">
+            <label className="block text-sm font-medium text-text-secondary mb-1">
               Ad ID
             </label>
             <input
@@ -306,20 +306,20 @@ export default function CreateAdPage() {
               value={adId}
               onChange={(e) => setAdId(e.target.value)}
               placeholder="Meta Ad ID"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+              className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
             />
           </div>
         </div>
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium text-navy mb-1">
+          <label className="block text-sm font-medium text-text-secondary mb-1">
             Status
           </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gold focus:ring-gold"
+            className="w-full rounded-md border border-dark-border bg-dark-elevated px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-gold focus:ring-gold transition-all duration-200"
           >
             <option value="draft">Draft</option>
             <option value="active">Active</option>
@@ -329,20 +329,20 @@ export default function CreateAdPage() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
+        <div className="flex items-center gap-3 pt-4 border-t border-dark-border">
           <button
             onClick={handleSave}
             disabled={saving || !name.trim()}
-            className="rounded-md bg-gold px-6 py-2 text-sm font-semibold text-navy hover:bg-gold-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="rounded-md bg-gold px-6 py-2 text-sm font-bold text-dark hover:bg-gold-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {saving && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-navy border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-dark border-t-transparent" />
             )}
             {saving ? 'Saving...' : 'Save Ad'}
           </button>
           <button
             onClick={() => router.push('/dashboard/ads')}
-            className="rounded-md border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="rounded-md border border-gold px-6 py-2 text-sm font-medium text-gold hover:bg-gold hover:text-dark transition-all duration-200"
           >
             Cancel
           </button>
