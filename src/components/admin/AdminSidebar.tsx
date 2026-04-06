@@ -43,13 +43,11 @@ export default function AdminSidebar() {
       {/* Branding */}
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
-          <svg
-            className="w-8 h-8 text-gold flex-shrink-0"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
+          <img
+            src="/logo.svg"
+            alt="North Star Ventures"
+            className="w-8 h-8 flex-shrink-0"
+          />
           <div>
             <h1 className="text-text-primary font-heading font-bold text-lg leading-tight">
               North Star Ventures

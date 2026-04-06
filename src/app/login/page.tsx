@@ -37,11 +37,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-dark flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          {/* Gold star mark */}
+          {/* Logo */}
           <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-            <svg viewBox="0 0 24 24" className="w-12 h-12 text-gold" fill="currentColor">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
+            <img src="/logo.svg" alt="North Star Ventures" className="w-12 h-12" />
           </div>
           <h1 className="text-2xl font-heading font-bold text-text-primary">North Star Ventures</h1>
           <p className="text-text-muted mt-1 text-sm tracking-widest uppercase">CRM</p>

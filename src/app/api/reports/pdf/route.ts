@@ -413,7 +413,7 @@ export async function POST(request: NextRequest) {
 <!-- Cover Page -->
 <div style="page-break-after:always;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:${NAVY};text-align:center;">
   <div style="width:72px;height:72px;border:2px solid ${GOLD};border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:28px;">
-    <span style="color:${GOLD};font-size:28px;">&#9733;</span>
+    <span style="color:${GOLD};font-size:28px;">&#10022;</span>
   </div>
   <h1 style="color:#fff;font-size:40px;font-weight:300;letter-spacing:2px;margin-bottom:6px;">North Star Ventures</h1>
   <div style="width:60px;height:2px;background:${GOLD};margin:14px auto 20px;"></div>
