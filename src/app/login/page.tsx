@@ -17,7 +17,7 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -28,8 +28,23 @@ export default function LoginPage() {
       return
     }
 
-    // Redirect to root — middleware will check role and route accordingly
-    router.push('/')
+    // Check if user is admin via profile
+    const userId = data.user?.id
+    if (userId) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', userId)
+        .single()
+
+      if (profile?.is_admin) {
+        router.push('/admin')
+        router.refresh()
+        return
+      }
+    }
+
+    router.push('/dashboard')
     router.refresh()
   }
 

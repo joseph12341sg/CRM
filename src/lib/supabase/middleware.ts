@@ -3,16 +3,25 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
 async function isAdmin(userId: string): Promise<boolean> {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!serviceKey) {
+    console.error('[middleware] SUPABASE_SERVICE_ROLE_KEY is not set')
+    return false
+  }
   const admin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    serviceKey,
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
-  const { data } = await admin
+  const { data, error } = await admin
     .from('profiles')
     .select('is_admin')
     .eq('id', userId)
     .single()
+  if (error) {
+    console.error('[middleware] isAdmin check failed:', error.message)
+    return false
+  }
   return data?.is_admin === true
 }
 
