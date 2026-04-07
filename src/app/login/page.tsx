@@ -30,22 +30,23 @@ export default function LoginPage() {
 
     // Check if user is admin via profile
     const userId = data.user?.id
+    let isAdmin = false
     if (userId) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', userId)
         .single()
 
-      if (profile?.is_admin) {
-        router.push('/admin')
-        router.refresh()
-        return
+      if (profileError) {
+        console.error('[login] profile lookup failed:', profileError.message)
       }
+      isAdmin = profile?.is_admin === true
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    // Force a full page navigation so the server-side middleware/layouts
+    // re-evaluate the new auth cookies on a fresh request.
+    window.location.href = isAdmin ? '/admin' : '/dashboard'
   }
 
   return (
