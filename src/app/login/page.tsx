@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { isAdminEmail } from '@/lib/admin'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -28,25 +29,12 @@ export default function LoginPage() {
       return
     }
 
-    // Check if user is admin via profile
-    const userId = data.user?.id
-    let isAdmin = false
-    if (userId) {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', userId)
-        .single()
-
-      if (profileError) {
-        console.error('[login] profile lookup failed:', profileError.message)
-      }
-      isAdmin = profile?.is_admin === true
-    }
+    // Check if user is admin by email (env-based, no DB lookup)
+    const admin = isAdminEmail(data.user?.email)
 
     // Force a full page navigation so the server-side middleware/layouts
     // re-evaluate the new auth cookies on a fresh request.
-    window.location.href = isAdmin ? '/admin' : '/dashboard'
+    window.location.href = admin ? '/admin' : '/dashboard'
   }
 
   return (

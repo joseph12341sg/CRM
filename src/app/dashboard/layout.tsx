@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { isAdminEmail } from '@/lib/admin';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 
 export default async function DashboardLayout({
@@ -10,16 +11,8 @@ export default async function DashboardLayout({
   const supabase = createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.is_admin) {
-      redirect('/admin');
-    }
+  if (user && isAdminEmail(user.email)) {
+    redirect('/admin');
   }
 
   return (

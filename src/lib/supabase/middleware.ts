@@ -1,29 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
-
-async function isAdmin(userId: string): Promise<boolean> {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!serviceKey) {
-    console.error('[middleware] SUPABASE_SERVICE_ROLE_KEY is not set')
-    return false
-  }
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    serviceKey,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
-  const { data, error } = await admin
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', userId)
-    .single()
-  if (error) {
-    console.error('[middleware] isAdmin check failed:', error.message)
-    return false
-  }
-  return data?.is_admin === true
-}
+import { isAdminEmail } from '@/lib/admin'
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -82,7 +59,7 @@ export async function updateSession(request: NextRequest) {
 
   // Logged in user on login page or root - redirect based on role
   if (user && (path === '/login' || path === '/')) {
-    const admin = await isAdmin(user.id)
+    const admin = isAdminEmail(user.email)
     const url = request.nextUrl.clone()
     url.pathname = admin ? '/admin' : '/dashboard'
     return NextResponse.redirect(url)
@@ -90,7 +67,7 @@ export async function updateSession(request: NextRequest) {
 
   // Admin route protection
   if (user && path.startsWith('/admin')) {
-    const admin = await isAdmin(user.id)
+    const admin = isAdminEmail(user.email)
     if (!admin) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
